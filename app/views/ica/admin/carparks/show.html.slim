@@ -1,0 +1,7 @@
+h1 Configuration for #{@carpark.parking_garage_name}
+
+= simple_form_for(@carpark) do |f|
+  = f.input :carpark_id
+  .btn-toolbar
+    .btn-group = f.button :submit, class: 'btn btn-primary'
+    .btn-group = link_to 'Back to overview', carparks_path, class: 'btn btn-default'

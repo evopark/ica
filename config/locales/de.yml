@@ -1,0 +1,12 @@
+de:
+  "true": Ja
+  "false": Nein
+
+  activerecord:
+    models:
+      ica/carpark:
+        one: Parkhaus
+        other: Parkhäuser
+    attributes:
+      ica/carpark:
+        api_user: API Nutzer

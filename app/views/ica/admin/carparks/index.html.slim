@@ -1,0 +1,8 @@
+table.table.table-condensed.table-hover.declarative-table#ica-carparks[data={ 'source' => carparks_path(format: :json), 'default-order' => '0,desc' }]
+  thead
+    tr
+      th data={ column: {'data' => 'parking_garage_name', 'searchable' => 1, 'orderable' => 1 }} Parkhaus
+      th data={ column: {'data' => 'carpark_id', 'searchable' => 1, 'orderable' => 1, link: "#{carparks_path}/:id"}} data-column-link-data='id' Objekt
+  tbody
+
+= link_to 'Neues Parkhaus einrichten', new_carpark_path, class: 'btn btn-primary'

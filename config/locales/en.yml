@@ -1,0 +1,12 @@
+en:
+  "true": Yes
+  "false": No
+
+  activerecord:
+    models:
+      ica/carpark:
+        one: Carpark
+        other: Carparks
+    attributes:
+      ica/carpark:
+        api_user: API User

@@ -1,0 +1,45 @@
+AllCops:
+  Include:
+    - '**/Rakefile'
+    - '**/config.ru'
+  Exclude:
+    - 'bin/*'
+    - 'db/**/*'
+    - 'spec/dummy/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - !ruby/regexp /old_and_unused\.rb$/
+  TargetRubyVersion: 2.3
+
+# Because Grape APIs are built with blocks...
+Metrics/BlockLength:
+  Enabled: false
+
+Style/AsciiComments:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+Style/SignalException:
+  Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/MultilineOperationIndentation:
+  EnforcedStyle: aligned
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Metrics/AbcSize:
+  Max: 16.5
+
+# helps for methods that return more complex hashes or use log statements
+Metrics/MethodLength:
+  Max: 15
+
+# We need multiline lambdas with `->` for scope declarations
+Style/Lambda:
+  Enabled: false

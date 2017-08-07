@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <title>Dummy Admin Layout</title>
+  <%= stylesheet_link_tag('application', media: 'all', 'data-turbolinks-track': true) %>
+  <%= javascript_include_tag('application', 'data-turbolinks-track': true) %>
+  <%= javascript_include_tag 'ica/application', 'data-turbolinks-track': true %>
+  <%= stylesheet_link_tag 'ica/application' %>
+</head>
+<body>
+   <nav class="navbar navbar-default">
+     <div class="navbar-header">
+       <p class="navbar-brand">Host App Admin Layout</p>
+     </div>
+     <ul class="nav navbar-nav">
+       <li><%= link_to 'Dummies', main_app.admin_dummies_path %></li>
+       <li><%= link_to 'Carparks', ICA::Admin::Engine.routes.url_helpers.carparks_path %></li>
+     </ul>
+   </nav>
+   <main class="container"><%= yield %></main>
+</body>
+</html>

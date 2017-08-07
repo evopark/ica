@@ -1,0 +1,7 @@
+h1 Configure parking garage for the ICA API
+
+= simple_form_for(@carpark, url: carparks_path) do |f|
+  = f.association :parking_garage, collection: ICA::ParkingGarageService.unconfigured_parking_garages, label_method: :name, value_method: :id, prompt: 'Select a parking garage'
+  = f.association :api_user
+  = f.input :carpark_id
+  = f.button :submit, class: 'btn-primary'

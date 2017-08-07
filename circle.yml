@@ -1,0 +1,18 @@
+machine:
+  services:
+    - redis
+checkout:
+  post:
+    - cp spec/dummy/config/database.yml.ci spec/dummy/config/database.yml
+dependencies:
+  pre:
+    - gem update --system
+    - gem install bundler
+database:
+  pre:
+    - sudo -u postgres createuser --superuser evopark
+  override:
+    - cd spec/dummy && bundle exec rake db:create db:structure:load
+test:
+  post:
+    - bash <(curl -s https://codecov.io/bash)

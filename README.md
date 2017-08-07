@@ -1,6 +1,6 @@
 # ICA WinCardCore implementation
 
-[![CircleCI](https://circleci.com/gh/evopark/ica.svg?style=svg&circle-token=3bcbc008369109e863b139fde49e6e94c3ae6ffc)](https://circleci.com/gh/evopark/ica)
+[![CircleCI](https://circleci.com/gh/evopark/ica.svg?style=svg&circle-token=829850d9c9c3a107ace62f8bb9c7377af92aee76)](https://circleci.com/gh/evopark/ica)
 
 This gem implements the WinCardCore API from ICA
 

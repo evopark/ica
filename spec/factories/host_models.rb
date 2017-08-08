@@ -5,4 +5,7 @@ FactoryGirl.define do
     sequence(:name) { |n| format('Test Garage %d', n) }
     system_type 'ica'
   end
+
+  factory :user, class: ICA.user_class do
+  end
 end

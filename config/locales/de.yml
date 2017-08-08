@@ -7,6 +7,10 @@ de:
       ica/carpark:
         one: Parkhaus
         other: Parkhäuser
+      ica/garage_systemm:
+        one: Park-System
+        other: Park-Systeme
     attributes:
       ica/carpark:
-        api_user: API Nutzer
+        garage_system: Park-System
+

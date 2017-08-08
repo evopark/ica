@@ -2,7 +2,7 @@
 
 module ICA
   # Fake facade for tests
-  class FakeFacade
+  class FakeSystemFacade
     METHODS = %i[
       ping
       check_authentication?

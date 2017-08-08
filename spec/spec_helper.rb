@@ -68,7 +68,8 @@ RSpec.configure do |config|
   config.include ICAHelper, type: :request
   config.include ICA::Admin::Engine.instance.routes.url_helpers, type: :feature
 
-  ICA.garage_system_facade = ICA::FakeFacade
+  ICA.garage_system_facade = ICA::FakeSystemFacade
+  ICA.user_data_facade = ICA::FakeUserDataFacade
 
   WebMock.disable_net_connect!(allow_localhost: false)
 end

@@ -4,8 +4,10 @@
 # Provides a few configuration methods
 module ICA
   mattr_writer :parking_garage_class
+  mattr_writer :user_class
 
   mattr_accessor :garage_system_facade
+  mattr_accessor :user_data_facade
   mattr_accessor :redis
 
   mattr_writer :logger
@@ -18,6 +20,11 @@ module ICA
     def parking_garage_class
       classname = class_variable_get('@@parking_garage_class') ||
                   Settings.ica.parking_garage_class
+      classname.constantize
+    end
+
+    def user_class
+      classname = class_variable_get('@@user_class') || Settings.ica.user_class
       classname.constantize
     end
 

@@ -17,7 +17,6 @@ module ICA::Admin
     def new
       if ICA::ParkingGarageService.unconfigured_parking_garages.any?
         @carpark = ICA::Carpark.new
-        @carpark.build_api_user
       else
         flash[:alert] = 'There are no unconfigured parking garages with type ICA'
         redirect_to action: :index
@@ -50,18 +49,7 @@ module ICA::Admin
     SETTINGS_PARAM = 'carpark'
     PERMITTED_ATTRIBUTES = %i[parking_garage_id carpark_id].freeze
     def carpark_params
-      params.require(SETTINGS_PARAM).permit(*PERMITTED_ATTRIBUTES).merge(auth_params)
-    end
-
-    def auth_params
-      case params.permit('auth_type')['auth_type']
-      when 'create_user'
-        params.require(SETTINGS_PARAM).permit(api_user_attributes: %i[username password])
-      when 'existing_user'
-        params.require(SETTINGS_PARAM).permit(:api_user_id)
-      else
-        redirect_back error: 'Invalid user authorization type', fallback_location: { action: :new }
-      end
+      params.require(SETTINGS_PARAM).permit(*PERMITTED_ATTRIBUTES)
     end
 
     def load_carpark

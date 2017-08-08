@@ -1,6 +1,8 @@
 AllCops:
   Include:
     - '**/Rakefile'
+    - '**/Gemfile'
+    - '**/Guardfile'
     - '**/config.ru'
   Exclude:
     - 'bin/*'
@@ -27,7 +29,7 @@ Style/SignalException:
 Style/DoubleNegation:
   Enabled: false
 
-Style/MultilineOperationIndentation:
+Layout/MultilineOperationIndentation:
   EnforcedStyle: aligned
 
 Style/ClassAndModuleChildren:

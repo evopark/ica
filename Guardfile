@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # A sample Guardfile
 # More info at https://github.com/guard/guard#readme
 
@@ -31,7 +33,8 @@ end
 # daemon: false                        # runs the server as a daemon.
 # debugger: false                      # enable ruby-debug gem.
 # environment: 'development'           # changes server environment.
-# force_run: false                     # kills any process that's holding the listen port before attempting to (re)start Rails.
+# force_run: false                     # kills any process that's holding the listen port before
+#                                      # attempting to (re)start Rails.
 # pid_file: 'tmp/pids/[RAILS_ENV].pid' # specify your pid_file.
 # host: 'localhost'                    # server hostname.
 # port: 3000                           # server port number.
@@ -57,8 +60,8 @@ end
 #  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 
-guard :rspec, cmd: "bundle exec rspec" do
-  require "guard/rspec/dsl"
+guard :rspec, cmd: 'bundle exec rspec' do
+  require 'guard/rspec/dsl'
   dsl = Guard::RSpec::Dsl.new(self)
 
   # Feel free to open issues for suggestions and improvements
@@ -100,6 +103,6 @@ guard :rspec, cmd: "bundle exec rspec" do
 end
 
 guard :rubocop, all_on_start: true, cli: %w[-a] do
-  watch(%r{.+\.rb$})
+  watch(/.+\.rb$/)
   watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
 end

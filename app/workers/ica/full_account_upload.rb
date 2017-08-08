@@ -5,6 +5,6 @@ module ICA
   class FullAccountUpload
     include Sidekiq::Worker
 
-    def perform(carpark_id); end
+    def perform(garage_system_id); end
   end
 end

@@ -17,5 +17,7 @@ module ICA
         Settings.ica
       end
     end
+
+    mount ApiV1
   end
 end

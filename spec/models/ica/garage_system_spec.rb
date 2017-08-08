@@ -18,5 +18,53 @@ module ICA
     end
 
     it { is_expected.to have_many(:carparks) }
+
+    describe 'workflow' do
+      it 'is "prepared" by default' do
+        expect(described_class.new).to be_prepared
+      end
+
+      context 'prepared' do
+        before { subject.workflow_state = 'prepared' }
+
+        it 'can go live' do
+          expect(subject.can_go_live?).to be_truthy
+        end
+
+        it 'transitions to live state' do
+          subject.go_live!
+          expect(subject).to be_live
+          expect(subject).to_not be_changed
+        end
+      end
+
+      context 'live' do
+        before { subject.workflow_state = 'live' }
+
+        it 'can be suspended' do
+          expect(subject.can_suspend?).to be_truthy
+        end
+
+        it 'transitions to suspended state' do
+          subject.suspend!
+          expect(subject).to be_suspended
+          expect(subject).to_not be_changed
+        end
+      end
+
+      context 'suspended' do
+        before { subject.workflow_state = 'suspended' }
+
+        it 'can go live again' do
+          expect(subject.can_go_live?).to be_truthy
+        end
+
+        it 'transitions into live state' do
+          subject.go_live!
+          expect(subject).to be_live
+          expect(subject).to_not be_changed
+        end
+      end
+    end
   end
 end

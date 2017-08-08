@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 require 'ica/version'
 
@@ -8,8 +10,7 @@ Gem::Specification.new do |s|
   s.email       = ['marcus.ilgner@evopark.de']
   s.homepage    = 'https://www.evopark.de'
   s.summary     = 'Implements the ICA API (client + server) & administration UI'
-  s.description = <<-EOS
-                  EOS
+  s.description = ''
   s.license     = 'Proprietary'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'Rakefile']

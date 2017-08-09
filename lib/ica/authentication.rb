@@ -5,8 +5,8 @@ module ICA
   class Authentication
     def initialize(client_id, sig_key, auth_key)
       @client_id = client_id
-      @sig_key = parse_hex(sig_key)
-      @auth_key = parse_hex(auth_key)
+      @sig_key = sig_key
+      @auth_key = auth_key
     end
 
     # Adds a `Signature` header to a {HTTP::Request}
@@ -25,20 +25,8 @@ module ICA
     private
 
     def expected_signature(request)
-      hmac.reset
-      hmac.update(@client_id)
-      hmac.update(request.headers['ClientId'])
-      hmac.update(request.headers['LocalTime'])
-      hmac.update(@auth_key)
-      hmac.hexdigest
-    end
-
-    def parse_hex(str)
-      [str].pack('H*')
-    end
-
-    def hmac
-      @hmac ||= OpenSSL::HMAC.new(@sig_key, digest)
+      data = @client_id + request.headers['LocalTime'] + @auth_key
+      OpenSSL::HMAC.hexdigest(digest, @sig_key, data)
     end
 
     def digest

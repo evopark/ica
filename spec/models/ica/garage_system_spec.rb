@@ -18,6 +18,7 @@ module ICA
     end
 
     it { is_expected.to have_many(:carparks) }
+    it { is_expected.to respond_to(:expose_easy_to_park?) }
 
     describe 'workflow' do
       it 'is "prepared" by default' do

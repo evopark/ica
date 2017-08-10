@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 module ICA
-  RSpec.describe AccountCustomerMapping do
-    UUID_REGEX = /\A[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}\Z/i
-
+  RSpec.describe CustomerAccountMapping do
     subject { build(:account_customer_mapping) }
+
+    it { is_expected.to belong_to(:user).class_name(ICA.user_class.to_s) }
+    it { is_expected.to belong_to(:garage_system).class_name('ICA::GarageSystem') }
+    it { is_expected.to have_many(:card_account_mappings).class_name('ICA::CardAccountMapping') }
+
+    it { is_expected.to validate_presence_of(:garage_system) }
 
     describe '#account_key' do
       context 'empty on create' do
@@ -15,8 +19,5 @@ module ICA
         end
       end
     end
-
-    it { is_expected.to belong_to(:user).class_name(ICA.user_class.to_s) }
-    it { is_expected.to belong_to(:garage_system).class_name('ICA::GarageSystem') }
   end
 end

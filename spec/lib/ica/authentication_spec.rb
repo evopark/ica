@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'ica/authentication'
 
 RSpec.describe ICA::Authentication do
@@ -8,7 +9,7 @@ RSpec.describe ICA::Authentication do
   let(:local_time) { '2017-01-01T18:00:00' }
   let(:correct_signature) { 'a8b0d807c79f66e54666bb3836e43bee8b472a3dece433bbb02cfc959366e140' }
 
-  let(:headers) { Hash.new }
+  let(:headers) { {} }
   let(:fake_request) do
     double('request').tap do |req|
       allow(req).to receive(:headers).and_return(headers)
@@ -32,7 +33,7 @@ RSpec.describe ICA::Authentication do
   end
 
   describe '#verify' do
-    let(:headers) { { 'LocalTime' => local_time} }
+    let(:headers) { { 'LocalTime' => local_time } }
     context 'with an invalid signature' do
       before { headers['Signature'] = 'foobar' }
       it 'fails' do

@@ -6,5 +6,9 @@ FactoryGirl.define do
     sig_key { SecureRandom.hex(32) }
     auth_key { SecureRandom.hex(32) }
     workflow_state 'live'
+
+    trait :easy_to_park do
+      expose_easy_to_park true
+    end
   end
 end

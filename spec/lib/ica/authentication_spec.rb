@@ -33,7 +33,7 @@ RSpec.describe ICA::Authentication do
   end
 
   describe '#verify' do
-    let(:headers) { { 'LocalTime' => local_time } }
+    let(:headers) { { 'Localtime' => local_time } }
     context 'with an invalid signature' do
       before { headers['Signature'] = 'foobar' }
       it 'fails' do

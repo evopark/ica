@@ -18,7 +18,7 @@ module ICA::Admin
 
     def column_to_sort(column_name)
       case column_name
-      when 'carpark_iid' then 'carpark_id'
+      when 'carpark_id' then 'carpark_id'
       when 'parking_garage_name' then "#{garages_table}.name"
       when 'garage_system_client_id' then "#{ICA::GarageSystems.table_name}.client_id"
       else raise ArgumentError, "Sorting by #{column_name} is not implemented"

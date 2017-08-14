@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # A simplified garage model: just so that it can be referenced from the gem
-class CreateParkingGarages < ActiveRecord::Migration
+class CreateParkingGarages < ActiveRecord::Migration[5.0]
   def change
     reversible do |dir|
       dir.up do

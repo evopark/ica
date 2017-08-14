@@ -6,4 +6,6 @@ class ParkingGarage < ApplicationRecord
     evopark: 'evopark',
     ica: 'ica'
   }
+  belongs_to :operator_company
+  has_many :blocklist_entries
 end

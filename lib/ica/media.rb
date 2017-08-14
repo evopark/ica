@@ -9,7 +9,8 @@ module ICA
       22 => :mifare_ultralight,
       23 => :mifare_desfire,
       31 => :legic_prime,
-      32 => :legic_advant
+      32 => :legic_advant,
+      255 => :card_number
     }.freeze
   end
 end

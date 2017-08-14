@@ -12,20 +12,24 @@ def private_github_uri(project, owner = 'evopark')
   "https://f6d83ebbffc170afcde732bfb75acd7128fdf471:x-oauth-basic@github.com/#{owner}/#{project}.git"
 end
 
+# Infrastructure
 gem 'config'
 gem 'gelf', '~> 3.0', git: 'https://github.com/evopark/gelf-rb.git'
-gem 'paper_trail', '~> 4.2'
+gem 'paper_trail'
+gem 'paranoia', '~> 2.3'
 gem 'rails', '~> 5.0.2'
 
 gem 'ep_ruby_utils', git: private_github_uri('ruby-utils')
 
 gem 'appsignal'
 
-gem 'semantic'
+# Data model
 gem 'uuid'
 gem 'workflow', '~> 1.2', git: 'https://github.com/geekq/workflow.git'
 
-# A few gems for the admin interface
+gem 'semantic'
+
+# Admin UI
 gem 'autoprefixer-rails', '~> 6.4.0'
 gem 'bootstrap-sass'
 gem 'coffee-rails', '~> 4.1.0'
@@ -40,14 +44,22 @@ gem 'simple_form', '3.3.1'
 gem 'slim-rails'
 gem 'uglifier', '>= 2.5.3'
 
+# Also background processing
+gem 'sidekiq', '~> 4.2.0'
+
+# The API for incoming requests
 gem 'grape', '~> 0.19.0'
 # gem 'grape-rails-cache', git: private_github_uri('grape-rails-cache')
 gem 'grape-entity'
+
+# API for outgoing requests :)
+gem 'http'
 
 group :test do
   gem 'capybara'
   gem 'database_cleaner'
   gem 'factory_girl_rails'
+  gem 'faker'
   gem 'nokogiri'
   gem 'rspec-json_expectations'
   gem 'rspec-rails'
@@ -56,6 +68,8 @@ group :test do
   gem 'simplecov'
   gem 'timecop'
   gem 'webmock'
+  # Makes testing delayed methods much nicer
+  gem 'rspec-sidekiq', git: 'https://github.com/philostler/rspec-sidekiq.git', branch: 'develop'
 end
 
 group :doc do

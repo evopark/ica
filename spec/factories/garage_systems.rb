@@ -6,9 +6,11 @@ FactoryGirl.define do
     sig_key { SecureRandom.hex(32) }
     auth_key { SecureRandom.hex(32) }
     workflow_state 'live'
+    hostname 'evopark-test.ica.de'
+    variant 'ica'
 
     trait :easy_to_park do
-      expose_easy_to_park true
+      variant { 'easy_to_park' }
     end
   end
 end

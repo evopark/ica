@@ -6,9 +6,10 @@ class CreateICACardAccountMappings < ActiveRecord::Migration[5.0]
     create_table :ica_card_account_mappings do |t|
       t.integer :customer_account_mapping_id,
                 foreign_key: { references: :ica_customer_account_mappings },
-                null: false, index: true
+                null: false
+      t.integer :rfid_tag_id, foreign_key: { references: :rfid_tags }, null: false
       t.uuid :card_key
-      t.string :card_identifier, index: true
+      t.timestamp :uploaded_at
       t.timestamps
     end
   end

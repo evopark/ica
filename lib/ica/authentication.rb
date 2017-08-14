@@ -25,7 +25,9 @@ module ICA
     private
 
     def expected_signature(request)
-      data = @client_id + request.headers['LocalTime'] + @auth_key
+      # Look for both spellings, uppercase often gets lost in incoming requests
+      localtime = request.headers['Localtime'] || request.headers['LocalTime']
+      data = @client_id + localtime + @auth_key
       OpenSSL::HMAC.hexdigest(digest, @sig_key, data)
     end
 

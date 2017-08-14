@@ -1,7 +1,6 @@
 # These settings will be prepended so they can be overriden by the host application
 ica:
   parking_garage_class: ParkingGarage
-  user_class: User
 logging:
   server: localhost
   port: 12201

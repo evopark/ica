@@ -9,6 +9,7 @@ module ICA::Admin
       {
         id: carpark.id,
         parking_garage_name: carpark.parking_garage_name,
+        garage_system_client_id: carpark.garage_system.client_id,
         carpark_id: carpark.carpark_uid
       }
     end
@@ -17,8 +18,9 @@ module ICA::Admin
 
     def column_to_sort(column_name)
       case column_name
-      when 'carpark_iid' then 'carpark_iid'
-      when 'parking_garage_name' then 'parking_garages.name'
+      when 'carpark_id' then 'carpark_id'
+      when 'parking_garage_name' then "#{garages_table}.name"
+      when 'garage_system_client_id' then "#{ICA::GarageSystems.table_name}.client_id"
       else raise ArgumentError, "Sorting by #{column_name} is not implemented"
       end
     end
@@ -28,7 +30,7 @@ module ICA::Admin
     end
 
     def base_query
-      ICA::Carpark.all.joins(:parking_garage).includes(:api_user)
+      ICA::Carpark.all.joins(:parking_garage).includes(:garage_system)
     end
 
     def garages_table

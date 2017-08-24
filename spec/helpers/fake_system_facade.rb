@@ -2,7 +2,7 @@
 
 module ICA
   # Fake facade for tests
-  class FakeFacade
+  class FakeSystemFacade
     METHODS = %i[
       ping
       check_authentication?
@@ -14,6 +14,8 @@ module ICA
       register_payment!
       finish_transaction!
       update_parking_garage_availability!
+      block_rfid_tag
+      unblock_rfid_tag
     ].freeze
 
     METHODS.each do |name|

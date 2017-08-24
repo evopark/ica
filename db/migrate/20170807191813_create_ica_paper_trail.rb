@@ -9,6 +9,7 @@ class CreateICAPaperTrail < ActiveRecord::Migration[5.0]
       t.string   :event,     null: false
       t.string   :whodunnit
       t.json     :object          # PostgreSQL-specific JSON type
+      t.jsonb    :object_changes
       t.datetime :created_at
     end
     add_index :ica_versions, %i[item_type item_id]

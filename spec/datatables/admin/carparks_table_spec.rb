@@ -2,8 +2,8 @@
 
 module ICA::Admin
   describe CarparksTable do
-    let(:user) { build(:api_user) }
-    let(:carpark) { build(:carpark, api_user: user) }
+    let(:garage_system) { build(:garage_system) }
+    let(:carpark) { build(:carpark, garage_system: garage_system) }
 
     let(:view_context) { ApplicationController.new.view_context }
     subject { described_class.new(view_context) }

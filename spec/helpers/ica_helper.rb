@@ -21,7 +21,7 @@ module ICAHelper
     signed_request_headers(garage_system).each do |key, value|
       header key, value
     end
-    public_send(method, path, params)
+    public_send(method, "/ica#{path}", params)
   end
 
   def app

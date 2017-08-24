@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '~> 5.0.2'
   # s.add_dependency 'redis', '~> 3.2'
   s.add_dependency 'config', '~> 1.2.0'
-  s.add_dependency 'paper_trail', '~> 4.2'
+  s.add_dependency 'paper_trail', '>= 7.1.0'
 
   s.add_dependency 'grape'
   s.add_dependency 'grape-entity'

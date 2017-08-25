@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base_request'
+require_relative 'create_accounts'
 
 module ICA
   # Update existing information on the remote system.

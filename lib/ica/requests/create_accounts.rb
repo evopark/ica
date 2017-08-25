@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'base_request'
+require 'ica/collection_streamer'
 
 module ICA
   module Requests

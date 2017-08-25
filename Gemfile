@@ -46,6 +46,8 @@ gem 'uglifier', '>= 2.5.3'
 
 # Also background processing
 gem 'sidekiq', '~> 4.2.0'
+gem 'ice_cube', git: 'https://github.com/evopark/ice_cube.git', branch: 'fix/sidetiq_startup'
+gem 'sidetiq'
 
 # The API for incoming requests
 gem 'grape', '~> 0.19.0'

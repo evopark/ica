@@ -9,7 +9,6 @@ module ICA
   # Uploads all missing account data, updates updated ones and removes outdated ones
   class AccountSync
     include Sidekiq::Worker
-    recurrence backfill: false # just continue with the next schedule, w/o backfills
 
     # better not retry automatically until we have some experience with the system
     # for now we better look into AppSignal first before retrying stuff as a retry would probably just result

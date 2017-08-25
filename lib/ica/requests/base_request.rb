@@ -11,8 +11,13 @@ module ICA
 
     private
 
+    def protocol
+      return 'https' if @garage_system.use_ssl?
+      'http'
+    end
+
     def request(method, path, body)
-      full_url = "https://#{@garage_system.hostname}/#{path}"
+      full_url = "#{protocol}://#{@garage_system.hostname}/#{path}"
       @response = http.request(method, full_url, body: body)
     end
 

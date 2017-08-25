@@ -10,6 +10,8 @@ module ICA
     it { is_expected.to validate_uniqueness_of(:client_id) }
     it { is_expected.to have_attribute(:last_account_sync_at) }
 
+    it { is_expected.to respond_to(:use_ssl?) }
+
     describe '#auth_key' do
       it { is_expected.to validate_presence_of(:auth_key) }
       it { is_expected.to_not allow_value('g' * 64).for(:auth_key) }

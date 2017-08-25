@@ -25,6 +25,19 @@ RSpec.describe ICA::GarageSystemService do
       created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: active_tag)
       expect(created_mapping).to_not be_uploaded
     end
+
+    context 'in testing mode' do
+      before { garage_system.update(workflow_state: 'testing') }
+
+      let(:test_card) { create(:rfid_tag, :active, user: build(:user)) }
+      let!(:test_group) { create(:test_group, users: [test_card.user]) }
+
+      it 'only creates mappings for users in test groups' do
+        expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
+        created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: test_card)
+        expect(created_mapping).to be_present
+      end
+    end
   end
 
   describe '#synced_obsolete_customer_account_mappings' do

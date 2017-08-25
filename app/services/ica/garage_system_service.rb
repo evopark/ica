@@ -88,7 +88,7 @@ module ICA
     def restrict_tags_by_test_groups(all_tags)
       all_tags
         .joins(user: :test_groups)
-        .merge(relevant_test_groups)
+        .merge(@garage_system.test_groups)
         .distinct
     end
 

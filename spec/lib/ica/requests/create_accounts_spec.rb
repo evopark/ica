@@ -4,7 +4,7 @@ RSpec.describe ICA::Requests::CreateAccounts do
   let(:garage_system) { create(:garage_system) }
   let!(:customer_account_mapping1) { create(:customer_account_mapping, garage_system: garage_system) }
   let!(:customer_account_mapping2) { create(:customer_account_mapping, garage_system: garage_system) }
-  let(:expected_url) { "https://#{garage_system.hostname}/api/v1/accounts" }
+  let(:expected_url) { "http://#{garage_system.hostname}/api/v1/accounts" }
 
   shared_examples 'valid account request' do
     it 'uses chunked transfer encoding' do

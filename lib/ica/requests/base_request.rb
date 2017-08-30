@@ -17,8 +17,9 @@ module ICA
     end
 
     def request(method, path, body)
-      full_url = "#{protocol}://#{@garage_system.hostname}/#{path}"
-      @response = http.request(method, full_url, body: body)
+      base_url = "#{protocol}://#{@garage_system.hostname}"
+      base_url += @garage_system.path_prefix if @garage_system.path_prefix.present?
+      @response = http.request(method, "#{base_url}/api#{path}", body: body)
     end
 
     def response_ok?

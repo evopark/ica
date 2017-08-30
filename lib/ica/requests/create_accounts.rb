@@ -9,7 +9,7 @@ module ICA
     # Can be used to send updates or even re-upload everything
     # In any case, the caller is responsible for starting a database transaction
     class CreateAccounts < BaseRequest
-      PATH = 'api/v1/accounts'
+      PATH = '/v1/accounts'
 
       def initialize(garage_system, account_mappings)
         super(garage_system)

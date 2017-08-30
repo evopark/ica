@@ -5,7 +5,7 @@ require_relative 'base_request'
 module ICA
   # Deletes an account from the remote system
   class DeleteAccounts < BaseRequest
-    PATH = 'api/v1/accounts'
+    PATH = '/v1/accounts'
 
     def initialize(garage_system, customer_account_mappings)
       super(garage_system)

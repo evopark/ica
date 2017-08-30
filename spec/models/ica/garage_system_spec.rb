@@ -40,6 +40,20 @@ module ICA
       end
     end
 
+    describe '#path_prefix' do
+      it 'must start with a slash' do
+        subject.path_prefix = 'foobar'
+        expect(subject).to_not be_valid
+        subject.path_prefix = '/foo/bar'
+        expect(subject).to be_valid
+      end
+
+      it 'must not end with a slash' do
+        subject.path_prefix = '/foobar/'
+        expect(subject).to_not be_valid
+      end
+    end
+
     describe 'workflow' do
       it 'is "prepared" by default' do
         expect(described_class.new).to be_prepared

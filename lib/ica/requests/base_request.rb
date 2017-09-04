@@ -19,11 +19,19 @@ module ICA
     def request(method, path, body)
       base_url = "#{protocol}://#{@garage_system.hostname}"
       base_url += @garage_system.path_prefix if @garage_system.path_prefix.present?
-      @response = http.request(method, "#{base_url}/api#{path}", body: body)
+      @response = http.request(method, "#{base_url}/api#{path}", body: body, headers: auth_headers)
     end
 
     def response_ok?
       (200..299).cover?(@response.code)
+    end
+
+    def auth_headers
+      time, signature = authentication.time_and_signature
+      {
+        'LocalTime' => time,
+        'Signature' => signature
+      }
     end
 
     def http
@@ -35,6 +43,12 @@ module ICA
              end
       base.headers(HTTP::Headers::CONTENT_TYPE => 'application/json',
                    HTTP::Headers::ACCEPT => 'application/json')
+    end
+
+    def authentication
+      @authentication ||= ICA::Authentication.new(@garage_system.client_id,
+                                                  @garage_system.sig_key,
+                                                  @garage_system.auth_key)
     end
 
     def log(level, message, options = {})

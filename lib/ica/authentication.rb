@@ -11,22 +11,22 @@ module ICA
 
     # Adds a `Signature` header to a {HTTP::Request}
     # Duck-typing: anything that responds to `#headers`
-    def sign(request)
-      request.headers['LocalTime'] = Time.now.iso8601
-      request.headers['Signature'] = expected_signature(request)
+    def time_and_signature
+      time = Time.now.iso8601
+      [time, expected_signature(time)]
     end
 
     # Verifies the `Signature` in a {Grape::Request}
     # Duck-typing: anything that responds to `#headers`
     def verify(request)
-      request.headers['Signature'] == expected_signature(request)
+      localtime = request.headers['Localtime'] || request.headers['LocalTime']
+      request.headers['Signature'] == expected_signature(localtime)
     end
 
     private
 
-    def expected_signature(request)
+    def expected_signature(localtime)
       # Look for both spellings, uppercase often gets lost in incoming requests
-      localtime = request.headers['Localtime'] || request.headers['LocalTime']
       data = @client_id + localtime + @auth_key
       OpenSSL::HMAC.hexdigest(digest, @sig_key, data)
     end

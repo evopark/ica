@@ -27,8 +27,8 @@ RSpec.describe ICA::Authentication do
     end
 
     it 'adds the correct signature' do
-      subject.sign(fake_request)
-      expect(headers['Signature']).to eq(correct_signature)
+      _time, signature = subject.time_and_signature
+      expect(signature).to eq(correct_signature)
     end
   end
 

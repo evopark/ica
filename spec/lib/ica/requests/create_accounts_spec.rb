@@ -26,6 +26,16 @@ RSpec.describe ICA::Requests::CreateAccounts do
       end.to_return(status: 204)
       expect(subject.execute).to be_truthy
     end
+
+    it 'contains a signature' do
+      Timecop.freeze do
+        stub_request(expected_http_verb, expected_url).with do |request|
+          expect(request.headers['Localtime']).to eq(Time.now.iso8601)
+          expect(request.headers['Signature']).to match(/\A\w{64}\Z/)
+        end.to_return(status: 204)
+        expect(subject.execute).to be_truthy
+      end
+    end
   end
 
   context 'when passing all mappings' do

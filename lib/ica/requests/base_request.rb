@@ -43,7 +43,8 @@ module ICA
              else
                HTTP
              end
-      base.headers(HTTP::Headers::CONTENT_TYPE => 'application/json',
+      base.timeout(write: 30, connect: 5, read: 60)
+          .headers(HTTP::Headers::CONTENT_TYPE => 'application/json',
                    HTTP::Headers::ACCEPT => 'application/json')
     end
 

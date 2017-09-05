@@ -29,6 +29,8 @@ module ICA
     def auth_headers
       time, signature = authentication.time_and_signature
       {
+        'ClientId' => @garage_system.client_id,
+        'AuthKey' => @garage_system.auth_key,
         'LocalTime' => time,
         'Signature' => signature
       }

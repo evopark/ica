@@ -30,6 +30,8 @@ RSpec.describe ICA::Requests::CreateAccounts do
     it 'contains a signature' do
       Timecop.freeze do
         stub_request(expected_http_verb, expected_url).with do |request|
+          expect(request.headers['Clientid']).to eq(garage_system.client_id)
+          expect(request.headers['Authkey']).to eq(garage_system.auth_key)
           expect(request.headers['Localtime']).to eq(Time.now.iso8601)
           expect(request.headers['Signature']).to match(/\A\w{64}\Z/)
         end.to_return(status: 204)

@@ -2,7 +2,7 @@
 
 require 'ica/requests/base_request'
 
-RSpec.describe ICA::BaseRequest do
+RSpec.describe ICA::Requests::BaseRequest do
   let(:garage_system) { build(:garage_system) }
   subject { described_class.new(garage_system) }
 

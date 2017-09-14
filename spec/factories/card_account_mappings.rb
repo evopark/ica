@@ -8,5 +8,9 @@ FactoryGirl.define do
     after(:build) do |mapping|
       mapping.rfid_tag.user = mapping.customer_account_mapping.user
     end
+
+    trait :uploaded do
+      uploaded_at 1.day.ago
+    end
   end
 end

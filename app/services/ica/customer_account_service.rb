@@ -21,12 +21,13 @@ module ICA
       @garage_system.last_account_sync_at
     end
 
-    # brace yourselves... the most straightforward way to find users for whom any one of the following
+    # brace yourselves... the most straightforward way to find users for whom any one of the following match:
+    # - their email, feature set, brand or workflow state changed
+    # - their address changed
+    # - one of their RFID tags changed (workflow state), got blocked or unblocked
     # rubocop:disable Metrics/MethodLength
     def updated_users_since_last_sync
       versions_with_changes = versions_with_changes(%w[email feature_set_id brand workflow_state])
-      # once this works, we can replace the constants with some calls to `table_name`, `primary_key` and
-      # reflect_on_association(:invoice_addresses)
       changes_query = <<-SQL
         (EXISTS
           (SELECT versions.id FROM (#{versions_with_changes.to_sql}) versions WHERE versions.item_id = users.id)

@@ -25,6 +25,7 @@ module ICA
       @garage_system = ICA::GarageSystem.find(garage_system_id)
       garage_system_service.create_missing_mappings
       delete_old_accounts
+      delete_old_cards
       upload_unsynced_data
       @garage_system.update(last_account_sync_at: started_at)
     rescue ActiveRecord::RecordNotFound
@@ -51,24 +52,33 @@ module ICA
 
     def update_existing_accounts
       # first update accounts that changed, then we can still look for individually changed cards afterwards
-      accounts_to_update = customer_account_service.outdated_accounts
-      request = Requests::UpdateAccounts.new(@garage_system, accounts_to_update)
-      return if request.execute
-      raise ICA::Errors::GarageSystemError.new(@garage_system.id, 'Failed to update accounts')
+      execute_request(Requests::UpdateAccounts,
+                      customer_account_service.outdated_accounts,
+                      'Failed to update accounts')
     end
 
     def create_new_accounts
-      accounts_to_upload = @garage_system.customer_account_mappings.not_uploaded
-      request = Requests::CreateAccounts.new(@garage_system, accounts_to_upload)
-      return if request.execute
-      raise ICA::Errors::GarageSystemError.new(@garage_system.id, 'Failed to execute account creation request')
+      execute_request(Requests::CreateAccounts,
+                      @garage_system.customer_account_mappings.not_uploaded,
+                      'Failed to upload new accounts')
     end
 
     def delete_old_accounts
-      to_delete = garage_system_service.synced_obsolete_customer_account_mappings
-      request = Requests::DeleteAccounts.new(@garage_system, to_delete)
+      execute_request(Requests::DeleteAccount,
+                      garage_system_service.synced_obsolete_customer_account_mappings,
+                      'Failed to remove outdated accounts')
+    end
+
+    def delete_old_cards
+      execute_request(Requests::DeleteCards,
+                      garage_system_service.synced_inactive_card_account_mappings,
+                      'Failed to remove outdated cards')
+    end
+
+    def execute_request(clazz, data, error_message)
+      request = clazz.new(@garage_system, data)
       return if request.execute
-      raise ICA::Errors::GarageSystemError.new(@garage_system.id, 'Failed to remove outdated accounts')
+      raise ICA::Errors::GarageSystemError.new(@garage_system.id, error_message)
     end
   end
 end

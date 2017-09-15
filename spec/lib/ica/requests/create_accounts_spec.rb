@@ -5,26 +5,26 @@ RSpec.describe ICA::Requests::CreateAccounts do
   let!(:customer_account_mapping1) { create(:customer_account_mapping, garage_system: garage_system) }
   let!(:customer_account_mapping2) { create(:customer_account_mapping, garage_system: garage_system) }
   let(:expected_url) { "http://#{garage_system.hostname}/api/v1/accounts" }
+  let!(:stub) { stub_request(expected_http_verb, expected_url).with(headers: expected_headers).and_return(status: 204) }
+  let(:expected_headers) { { 'Transfer-Encoding' => 'chunked' } }
 
   shared_examples 'valid account request' do
     it 'uses chunked transfer encoding' do
-      expected_headers = { 'Transfer-Encoding' => 'chunked' }
-      stub_request(expected_http_verb, expected_url).with(headers: expected_headers).and_return(status: 204)
       expect(subject.execute).to be_truthy
     end
 
     it 'provides and accepts JSON' do
-      expected_headers = { 'Accept' => %r{\Aapplication/json},
-                           'Content-Type' => %r{\Aapplication/json} }
-      stub_request(expected_http_verb, expected_url).with(headers: expected_headers).and_return(status: 204)
+      expected_headers.merge!('Accept' => %r{\Aapplication/json},
+                              'Content-Type' => %r{\Aapplication/json})
       expect(subject.execute).to be_truthy
     end
 
     it 'sends valid JSON with account data' do
-      stub_request(expected_http_verb, expected_url).with do |request|
-        expect(request.body).to be_a(Enumerable)
-      end.to_return(status: 204)
+      stub.with do |request|
+        expect(request.body).to be_a(ICA::CollectionStreamer)
+      end
       expect(subject.execute).to be_truthy
+      expect(stub).to have_been_requested
     end
 
     it 'contains a signature' do
@@ -36,6 +36,15 @@ RSpec.describe ICA::Requests::CreateAccounts do
           expect(request.headers['Signature']).to match(/\A\w{64}\Z/)
         end.to_return(status: 204)
         expect(subject.execute).to be_truthy
+      end
+    end
+
+    it 'sets the updated_at timestamp of all mappings' do
+      card_account_mapping = create(:card_account_mapping, customer_account_mapping: customer_account_mapping1)
+      Timecop.freeze(Time.now.change(usec: 0)) do
+        subject.execute
+        expect(customer_account_mapping1.reload.uploaded_at).to eq(Time.now)
+        expect(card_account_mapping.reload.uploaded_at).to eq(Time.now)
       end
     end
   end

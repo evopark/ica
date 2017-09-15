@@ -13,6 +13,7 @@ module ICA
     belongs_to :garage_system, class_name: 'ICA::GarageSystem'
 
     has_many :card_account_mappings, class_name: 'ICA::CardAccountMapping', dependent: :destroy
+    has_many :rfid_tags, through: :card_account_mappings
 
     before_validation :generate_account_key, on: :create
 
@@ -26,11 +27,9 @@ module ICA
     def to_json_hash
       {
         AccountKey: account_key,
-        Card: card_data
-      }.tap do |data|
-        next unless easy_to_park?
-        data.merge!(Customer: customer_data)
-      end
+        Card: card_data,
+        Customer: customer_data
+      }
     end
 
     private
@@ -44,6 +43,24 @@ module ICA
     end
 
     def customer_data
+      if easy_to_park?
+        full_customer_data
+      else
+        minimal_customer_data
+      end
+    end
+
+    def minimal_customer_data
+      # we know that for non-easy-to-park users there is a 1:1 relation between account and card
+      card_number = rfid_tags.first&.tag_number
+      return {} if card_number.blank?
+      {
+        CustomerNo: card_number,
+        LastName: card_number
+      }
+    end
+
+    def full_customer_data
       {
         CustomerNo: user.customer_number,
         Gender: numeric_gender,

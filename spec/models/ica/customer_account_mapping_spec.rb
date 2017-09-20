@@ -10,6 +10,7 @@ module ICA
     it { is_expected.to belong_to(:user) }
     it { is_expected.to belong_to(:garage_system).class_name('ICA::GarageSystem') }
     it { is_expected.to have_many(:card_account_mappings).class_name('ICA::CardAccountMapping').dependent(:destroy) }
+    it { is_expected.to have_many(:rfid_tags).through(:card_account_mappings) }
 
     it { is_expected.to validate_presence_of(:garage_system) }
 
@@ -71,9 +72,21 @@ module ICA
 
       context 'for non-easy-to-park users' do
         before { subject.user.brand = 'evopark' }
+        let(:customer_data) { subject.to_json_hash[:Customer] }
 
-        it 'contains no address information' do
-          expect(subject.to_json_hash).to_not include_json(Customer: {})
+        context 'without associated card' do
+          it 'is empty' do
+            expect(customer_data).to be_empty
+          end
+        end
+
+        context 'with associated card' do
+          let!(:card_account_mapping) { create(:card_account_mapping, customer_account_mapping: subject) }
+          let(:rfid_tag) { card_account_mapping.rfid_tag }
+
+          it 'contains the card number' do
+            expect(customer_data).to include_json(CustomerNo: rfid_tag.tag_number, LastName: rfid_tag.tag_number)
+          end
         end
       end
 

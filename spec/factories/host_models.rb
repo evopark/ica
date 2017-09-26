@@ -25,6 +25,10 @@ FactoryGirl.define do
       end
     end
 
+    trait :evopark do
+      # it's the default
+    end
+
     trait :easy_to_park do
       brand 'easy_to_park'
     end

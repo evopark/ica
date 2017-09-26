@@ -13,7 +13,7 @@ module ICA
 
       def initialize(garage_system, account_mappings)
         super(garage_system)
-        @account_mappings = account_mappings
+        @account_mappings = account_mappings.joins(:card_account_mappings)
       end
 
       def execute

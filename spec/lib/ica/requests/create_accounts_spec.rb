@@ -2,8 +2,14 @@
 
 RSpec.describe ICA::Requests::CreateAccounts do
   let(:garage_system) { create(:garage_system) }
-  let!(:customer_account_mapping1) { create(:customer_account_mapping, garage_system: garage_system) }
-  let!(:customer_account_mapping2) { create(:customer_account_mapping, garage_system: garage_system) }
+
+  let(:customer_account_mapping1) { create(:customer_account_mapping, garage_system: garage_system) }
+  # accounts w/o cards will be ignored, so we need some cards
+  let!(:card_account_mapping1) { create(:card_account_mapping, customer_account_mapping: customer_account_mapping1) }
+
+  let(:customer_account_mapping2) { create(:customer_account_mapping, garage_system: garage_system) }
+  let!(:card_account_mapping2) { create(:card_account_mapping, customer_account_mapping: customer_account_mapping2) }
+
   let(:expected_url) { "http://#{garage_system.hostname}/api/v1/accounts" }
   let!(:stub) { stub_request(expected_http_verb, expected_url).with(headers: expected_headers).and_return(status: 204) }
   let(:expected_headers) { { 'Transfer-Encoding' => 'chunked' } }
@@ -40,11 +46,10 @@ RSpec.describe ICA::Requests::CreateAccounts do
     end
 
     it 'sets the updated_at timestamp of all mappings' do
-      card_account_mapping = create(:card_account_mapping, customer_account_mapping: customer_account_mapping1)
       Timecop.freeze(Time.now.change(usec: 0)) do
         subject.execute
         expect(customer_account_mapping1.reload.uploaded_at).to eq(Time.now)
-        expect(card_account_mapping.reload.uploaded_at).to eq(Time.now)
+        expect(card_account_mapping1.reload.uploaded_at).to eq(Time.now)
       end
     end
   end
@@ -58,7 +63,10 @@ RSpec.describe ICA::Requests::CreateAccounts do
 
   context 'for a subset of mappings' do
     let(:expected_http_verb) { :post }
-    subject { described_class.new(garage_system, garage_system.customer_account_mappings.limit(1)) }
+    subject do
+      described_class.new(garage_system, garage_system.customer_account_mappings
+                                                      .where('ica_customer_account_mappings.id < ?', customer_account_mapping2.id))
+    end
 
     it_behaves_like 'valid account request'
   end

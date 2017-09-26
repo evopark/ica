@@ -26,6 +26,16 @@ CREATE TYPE ica_garage_system_variant AS ENUM (
 
 
 --
+-- Name: parking_card_add_on_provider; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE parking_card_add_on_provider AS ENUM (
+    'shell',
+    'legic_prime'
+);
+
+
+--
 -- Name: parking_system_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -52,6 +62,48 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: addresses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE addresses (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    "default" boolean,
+    first_name character varying,
+    last_name character varying,
+    gender integer,
+    academic_title integer,
+    zip_code character varying,
+    country_code character varying,
+    city character varying,
+    additional character varying,
+    street character varying,
+    type character varying DEFAULT 'InvoiceAddress'::character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: addresses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE addresses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: addresses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE addresses_id_seq OWNED BY addresses.id;
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -70,7 +122,10 @@ CREATE TABLE ar_internal_metadata (
 CREATE TABLE blocklist_entries (
     id integer NOT NULL,
     rfid_tag_id integer NOT NULL,
-    parking_garage_id integer NOT NULL
+    parking_garage_id integer NOT NULL,
+    deleted_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -165,7 +220,6 @@ ALTER SEQUENCE ica_carparks_id_seq OWNED BY ica_carparks.id;
 CREATE TABLE ica_customer_account_mappings (
     id integer NOT NULL,
     account_key uuid NOT NULL,
-    account_identifier character varying NOT NULL,
     user_id integer NOT NULL,
     uploaded_at timestamp without time zone,
     garage_system_id integer NOT NULL,
@@ -206,7 +260,9 @@ CREATE TABLE ica_garage_systems (
     workflow_state character varying NOT NULL,
     last_account_sync_at timestamp without time zone,
     hostname character varying NOT NULL,
-    variant ica_garage_system_variant NOT NULL
+    variant ica_garage_system_variant NOT NULL,
+    use_ssl boolean DEFAULT false NOT NULL,
+    path_prefix character varying
 );
 
 
@@ -240,6 +296,7 @@ CREATE TABLE ica_versions (
     event character varying NOT NULL,
     whodunnit character varying,
     object json,
+    object_changes jsonb,
     created_at timestamp without time zone
 );
 
@@ -324,6 +381,39 @@ ALTER SEQUENCE operator_companies_test_groups_id_seq OWNED BY operator_companies
 
 
 --
+-- Name: parking_card_add_ons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE parking_card_add_ons (
+    id integer NOT NULL,
+    identifier character varying NOT NULL,
+    rfid_tag_id integer,
+    provider parking_card_add_on_provider,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: parking_card_add_ons_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE parking_card_add_ons_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: parking_card_add_ons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE parking_card_add_ons_id_seq OWNED BY parking_card_add_ons.id;
+
+
+--
 -- Name: parking_garages; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -363,6 +453,8 @@ ALTER SEQUENCE parking_garages_id_seq OWNED BY parking_garages.id;
 CREATE TABLE rfid_tags (
     id integer NOT NULL,
     user_id integer,
+    tag_number character varying NOT NULL,
+    uid character varying,
     workflow_state character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
@@ -465,6 +557,9 @@ ALTER SEQUENCE test_groups_users_id_seq OWNED BY test_groups_users.id;
 
 CREATE TABLE users (
     id integer NOT NULL,
+    email character varying NOT NULL,
+    feature_set_id integer NOT NULL,
+    customer_number character varying NOT NULL,
     workflow_state character varying NOT NULL,
     brand user_brand DEFAULT 'evopark'::user_brand NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -502,6 +597,7 @@ CREATE TABLE versions (
     event character varying NOT NULL,
     whodunnit character varying,
     object json,
+    object_changes json,
     created_at timestamp without time zone
 );
 
@@ -523,6 +619,13 @@ CREATE SEQUENCE versions_id_seq
 --
 
 ALTER SEQUENCE versions_id_seq OWNED BY versions.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY addresses ALTER COLUMN id SET DEFAULT nextval('addresses_id_seq'::regclass);
 
 
 --
@@ -585,6 +688,13 @@ ALTER TABLE ONLY operator_companies_test_groups ALTER COLUMN id SET DEFAULT next
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY parking_card_add_ons ALTER COLUMN id SET DEFAULT nextval('parking_card_add_ons_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY parking_garages ALTER COLUMN id SET DEFAULT nextval('parking_garages_id_seq'::regclass);
 
 
@@ -621,6 +731,14 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 --
 
 ALTER TABLE ONLY versions ALTER COLUMN id SET DEFAULT nextval('versions_id_seq'::regclass);
+
+
+--
+-- Name: addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY addresses
+    ADD CONSTRAINT addresses_pkey PRIMARY KEY (id);
 
 
 --
@@ -696,6 +814,14 @@ ALTER TABLE ONLY operator_companies_test_groups
 
 
 --
+-- Name: parking_card_add_ons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY parking_card_add_ons
+    ADD CONSTRAINT parking_card_add_ons_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: parking_garages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -752,10 +878,10 @@ ALTER TABLE ONLY versions
 
 
 --
--- Name: index_ica_customer_account_mappings_on_account_identifier; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_parking_card_add_on_unique_identifier; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_ica_customer_account_mappings_on_account_identifier ON ica_customer_account_mappings USING btree (account_identifier);
+CREATE UNIQUE INDEX idx_parking_card_add_on_unique_identifier ON parking_card_add_ons USING btree (provider, identifier);
 
 
 --
@@ -777,6 +903,20 @@ CREATE INDEX index_ica_garage_systems_on_client_id_and_auth_key ON ica_garage_sy
 --
 
 CREATE INDEX index_ica_versions_on_item_type_and_item_id ON ica_versions USING btree (item_type, item_id);
+
+
+--
+-- Name: index_rfid_tags_on_tag_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rfid_tags_on_tag_number ON rfid_tags USING btree (tag_number);
+
+
+--
+-- Name: index_rfid_tags_on_uid; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rfid_tags_on_uid ON rfid_tags USING btree (uid);
 
 
 --
@@ -807,6 +947,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170808120000'),
 ('20170808121126'),
 ('20170808155619'),
-('20170810114840');
+('20170810114840'),
+('20170825112043'),
+('20170830134633');
 
 

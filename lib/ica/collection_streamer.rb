@@ -15,6 +15,7 @@ module ICA
       yield "[\n"
       first = true
       # find_each uses batches to avoid having too many queries
+      # note that this prevents limit() queries
       @mappings.find_each do |object|
         buffer = if first
                    first = false

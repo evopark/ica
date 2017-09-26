@@ -41,14 +41,18 @@ module ICA
 
     private
 
-    # Easy-To-Park systems contain all users whereas non-ETP-systems don't include ETP users
+    # Easy-To-Park systems receive easy-to-park users whereas non-ETP-systems only receive non-ETP users
+    # That means that ECE systems will need to be set up twice: once for ETP and once for evopark
+    # This is due to the way that ICA works internally to map the users to the corresponding vendor
     def all_users
-      return User.all if @garage_system.easy_to_park?
+      return User.where(brand: 'easy_to_park') if @garage_system.easy_to_park?
       User.where.not(brand: 'easy_to_park')
     end
 
     def allowed_tags
+      # unfortunately there might be some cards with UID nil, we need to exclude those or it will break things
       rfid_tags_restricted_by_test_groups.excluding(blocked_rfid_tags)
+                                         .where.not(uid: nil)
     end
 
     # TODO: in order to get this as performant and straight-forward as possible, it does not take contract parking into

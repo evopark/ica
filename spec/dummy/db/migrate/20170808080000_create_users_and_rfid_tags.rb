@@ -31,7 +31,7 @@ class CreateUsersAndRfidTags < ActiveRecord::Migration[5.0]
     create_table :rfid_tags do |t|
       t.integer :user_id, foreign_key: { references: :users }
       t.string :tag_number, null: false, index: true
-      t.string :uid, null: false, index: true
+      t.string :uid, index: true # theoretically not null, unfortunately missing in some envs
       t.string :workflow_state, null: false
       t.timestamps
     end

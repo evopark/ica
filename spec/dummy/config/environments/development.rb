@@ -36,6 +36,8 @@ Rails.application.configure do
 
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
+  # Raise an error if one uses `#find_each` on a relation that already has limit or order specified
+  config.active_record.error_on_ignored_order_or_limit = true
 
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large

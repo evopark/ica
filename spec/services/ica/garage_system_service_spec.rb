@@ -5,36 +5,70 @@ RSpec.describe ICA::GarageSystemService do
   subject { described_class.new(garage_system) }
 
   describe '#create_missing_mappings' do
-    let!(:active_tag) { create(:rfid_tag, :active, user: build(:user)) }
-    let!(:inactive_tag) { create(:rfid_tag, :inactive, user: build(:user)) }
-    let(:blocked_tag) { create(:rfid_tag, :active, user: build(:user)) }
-    let!(:blocklist_entry) { create(:blocklist_entry, rfid_tag: blocked_tag, parking_garage: build(:parking_garage)) }
-    let!(:carpark) { create(:carpark, garage_system: garage_system, parking_garage: blocklist_entry.parking_garage) }
-    let(:tag_with_existing_mappings) { create(:rfid_tag, :active, user: build(:user)) }
-    let(:existing_account_mapping) do
-      create(:customer_account_mapping, garage_system: garage_system, user: tag_with_existing_mappings.user)
-    end
-    let!(:existing_card_mapping) do
-      create(:card_account_mapping, garage_system: garage_system,
-                                    customer_account_mapping: existing_account_mapping,
-                                    rfid_tag: tag_with_existing_mappings)
-    end
+    context 'with inactive or blocked cards' do
+      let!(:active_tag) { create(:rfid_tag, :active, user: build(:user)) }
+      let!(:inactive_tag) { create(:rfid_tag, :inactive, user: build(:user)) }
+      let(:blocked_tag) { create(:rfid_tag, :active, user: build(:user)) }
+      let!(:blocklist_entry) { create(:blocklist_entry, rfid_tag: blocked_tag, parking_garage: build(:parking_garage)) }
+      let!(:carpark) { create(:carpark, garage_system: garage_system, parking_garage: blocklist_entry.parking_garage) }
+      let(:tag_with_existing_mappings) { create(:rfid_tag, :active, user: build(:user)) }
+      let(:existing_account_mapping) do
+        create(:customer_account_mapping, garage_system: garage_system, user: tag_with_existing_mappings.user)
+      end
+      let!(:existing_card_mapping) do
+        create(:card_account_mapping, garage_system: garage_system,
+                                      customer_account_mapping: existing_account_mapping,
+                                      rfid_tag: tag_with_existing_mappings)
+      end
 
-    it 'creates new mappings for active, unblocked cards' do
-      expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
-      created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: active_tag)
-      expect(created_mapping).to_not be_uploaded
-    end
-
-    context 'in testing mode' do
-      before { garage_system.update(workflow_state: 'testing') }
-
-      let(:test_card) { create(:rfid_tag, :active, user: build(:user)) }
-      let!(:test_group) { create(:test_group, users: [test_card.user]) }
-
-      it 'only creates mappings for users in test groups' do
+      it 'creates new mappings for active, unblocked cards' do
         expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
-        created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: test_card)
+        created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: active_tag)
+        expect(created_mapping).to_not be_uploaded
+      end
+
+      context 'with RFID tags that have no UID' do
+        before { active_tag.update(uid: nil) }
+
+        it 'does not create a mapping' do
+          expect { subject.create_missing_mappings }.to_not change { garage_system.customer_account_mappings.count }
+        end
+      end
+
+      context 'in testing mode' do
+        before { garage_system.update(workflow_state: 'testing') }
+
+        let(:test_card) { create(:rfid_tag, :active, user: build(:user)) }
+        let!(:test_group) { create(:test_group, users: [test_card.user]) }
+
+        it 'only creates mappings for users in test groups' do
+          expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
+          created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: test_card)
+          expect(created_mapping).to be_present
+        end
+      end
+    end
+
+    context 'EASY TO PARK' do
+      let(:garage_system) { create(:garage_system, :easy_to_park) }
+      let!(:etp_card) { create(:rfid_tag, :active, user: build(:user, :easy_to_park)) }
+      let!(:evopark_card) { create(:rfid_tag, :active, user: build(:user, :evopark)) }
+
+      it 'only creates mappings for ETP cards' do
+        expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
+        created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: etp_card)
+        expect(created_mapping).to be_present
+      end
+    end
+
+    context 'non-EASY-TO-PARK' do
+      let(:garage_system) { create(:garage_system, :ica) }
+      let!(:etp_card) { create(:rfid_tag, :active, user: build(:user, :easy_to_park)) }
+      let!(:evopark_card) { create(:rfid_tag, :active, user: build(:user, :evopark)) }
+
+      it 'only creates mappings for non-ETP cards' do
+        expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
+        created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: evopark_card)
         expect(created_mapping).to be_present
       end
     end

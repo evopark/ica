@@ -42,4 +42,6 @@ Rails.application.configure do
 
   # pg_dump not available on CI
   config.active_record.dump_schema_after_migration = false
+  # Raise an error if one uses `#find_each` on a relation that already has limit or order specified
+  config.active_record.error_on_ignored_order_or_limit = true
 end

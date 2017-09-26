@@ -9,6 +9,10 @@ FactoryGirl.define do
     hostname 'evopark-test.ica.de'
     variant 'ica'
 
+    trait :ica do
+      # default
+    end
+
     trait :easy_to_park do
       variant { 'easy_to_park' }
     end

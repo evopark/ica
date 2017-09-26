@@ -31,9 +31,10 @@ module ICA
       end
     end
 
-    before do
-      authenticate_request
-    end
+    # temporarily disabled until ICA implements it on their side
+    # before do
+    #   authenticate_request
+    # end
 
     after do
       @garage_system = nil

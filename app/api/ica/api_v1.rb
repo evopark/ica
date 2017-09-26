@@ -31,6 +31,14 @@ module ICA
       end
     end
 
+    rescue_from Grape::Exceptions::ValidationErrors do |e|
+      error!(e, 422)
+    end
+
+    rescue_from Grape::Exceptions::MethodNotAllowed do |e|
+      error!(e, 405)
+    end
+
     # temporarily disabled until ICA implements it on their side
     # before do
     #   authenticate_request

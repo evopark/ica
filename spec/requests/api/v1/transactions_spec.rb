@@ -37,6 +37,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         }
       }
     end
+
     let(:basic_facade_args) do
       {
         vendor: :ica,
@@ -62,6 +63,22 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
       end
     end
 
+    context 'with invalid params' do
+      let(:params) { basic_params.merge(Media: { MediaType: 0 }) }
+
+      it 'returns 422' do
+        api_request(garage_system, :put, api_path, params)
+        expect(last_response.status).to eq(422)
+      end
+    end
+
+    context 'with unknown HTTP verb' do
+      it 'returns 405' do
+        api_request(garage_system, :post, api_path, basic_params)
+        expect(last_response.status).to eq(405)
+      end
+    end
+
     context 'with a finished transaction' do
       let(:params) do
         basic_params.merge(Status: 1, DriveOut: {
@@ -84,6 +101,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         }
         args
       end
+
       it 'returns 204' do
         expect_any_instance_of(facade_class).to receive(:finish_transaction!)
           .with(expected_facade_args)

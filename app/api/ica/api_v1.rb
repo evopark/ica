@@ -39,6 +39,10 @@ module ICA
       error!(e, 405)
     end
 
+    rescue_from ActiveRecord::RecordNotFound do
+      error!({ message: I18n.t('errors.messages.not_found') }, 404)
+    end
+
     # temporarily disabled until ICA implements it on their side
     # before do
     #   authenticate_request
@@ -46,10 +50,6 @@ module ICA
 
     after do
       @garage_system = nil
-    end
-
-    rescue_from ActiveRecord::RecordNotFound do
-      error!({ message: I18n.t('errors.messages.not_found') }, 404)
     end
 
     mount ICA::Endpoints::V1::Accounts

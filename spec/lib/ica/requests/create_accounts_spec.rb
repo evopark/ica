@@ -56,6 +56,9 @@ RSpec.describe ICA::Requests::CreateAccounts do
 
   context 'when passing all mappings' do
     let(:expected_http_verb) { :put }
+    # regression test to avoid duplicates for users w/ multiple cards
+    let!(:card_account_mapping3) { create(:card_account_mapping, customer_account_mapping: customer_account_mapping1) }
+
     subject { described_class.new(garage_system, garage_system.customer_account_mappings) }
 
     it_behaves_like 'valid account request'

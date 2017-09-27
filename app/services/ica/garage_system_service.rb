@@ -33,9 +33,10 @@ module ICA
     # Finds all tags that are currently in the remote system
     # but are not in the list of allowed tags of the garage anymore
     # Since we keep blocked cards in the remote system as long as they're active, don't consider them here
-    def synced_inactive_card_account_mappings
+    def synced_inactive_card_account_mappings(full_sync: false)
+      card_query = full_sync ? allowed_tags : short_term_rfid_tags
       @garage_system.card_account_mappings.joins(:rfid_tag).where <<-SQL
-        NOT EXISTS (SELECT * FROM (#{short_term_rfid_tags.to_sql}) allowed_tags WHERE allowed_tags.id=rfid_tags.id)
+        NOT EXISTS (SELECT * FROM (#{card_query.to_sql}) card_query WHERE card_query.id=rfid_tags.id)
       SQL
     end
 

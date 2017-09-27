@@ -21,6 +21,7 @@ module ICA
     private
 
     def clear_existing_data
+      garage_system_service.synced_inactive_card_account_mappings(full_sync: true).destroy_all
       garage_system_service.synced_obsolete_customer_account_mappings(full_sync: true).destroy_all
       @garage_system.customer_account_mappings.update_all(uploaded_at: nil)
       @garage_system.card_account_mappings.update_all(uploaded_at: nil)

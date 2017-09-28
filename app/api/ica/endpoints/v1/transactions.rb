@@ -33,6 +33,7 @@ module ICA::Endpoints::V1
       }.freeze
 
       ADDITIONAL_INFOS = {
+        0 => :regular_transaction, # should not be used
         1 => :manual_authorisation
       }.freeze
 

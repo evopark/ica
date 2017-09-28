@@ -32,11 +32,6 @@ module ICA::Endpoints::V1
         105 => :cancelled_by_operator_for_replacement
       }.freeze
 
-      ADDITIONAL_INFOS = {
-        0 => :regular_transaction, # should not be used
-        1 => :manual_authorisation
-      }.freeze
-
       helpers do
         params :Media do
           requires :MediaType, type: Integer, values: ICA::Media::TYPES.keys
@@ -50,7 +45,7 @@ module ICA::Endpoints::V1
           end
           optional :DeviceNumber, type: Integer
           requires :DateTime, type: DateTime
-          optional :InfoId, type: Integer, values: ADDITIONAL_INFOS.keys
+          optional :InfoId, type: Integer # we don't validate those anymore as they're dynamic
         end
         params :Price do
           requires :Currency, type: String, values: %w[EUR]
@@ -133,9 +128,27 @@ module ICA::Endpoints::V1
           if facade_result['success']
             body false
           else
-            status 409
-            { message: facade_result['message'] }
+            case facade_result.dig('result', 'reason').to_s
+            when 'parking_transaction_not_found' then unknown_transaction
+            when 'unknown_medium' then unknown_medium
+            else default_error(facade_result)
+            end
           end
+        end
+
+        def unknown_transaction
+          status 404
+          { Id: I18n.t('errors.messages.invalid') }
+        end
+
+        def unknown_medium
+          status 422
+          { Media: { MediaId: I18n.t('errors.messages.invalid') } }
+        end
+
+        def default_error(facade_result)
+          status 409
+          { message: facade_result['message'] }
         end
 
         def finish_or_cancel_parking_transaction(facade_arguments)

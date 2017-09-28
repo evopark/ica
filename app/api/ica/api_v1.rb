@@ -27,7 +27,7 @@ module ICA
       end
 
       def call_facade(method_name, args)
-        ICA.garage_system_facade.new.public_send(method_name, { vendor: :ica }.merge(args))
+        ICA.garage_system_facade.new.public_send(method_name, { vendor: :ica }.merge(args)).deep_stringify_keys
       end
     end
 

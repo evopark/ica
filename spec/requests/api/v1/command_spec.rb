@@ -17,7 +17,7 @@ RSpec.describe ICA::Endpoints::V1::Command do
         create(:carpark, garage_system: garage_system, parking_garage: build(:parking_garage))
       end
       expected_facade_args = hash_including(vendor: :ica, garage_ids: carparks.map(&:parking_garage_id))
-      expect_any_instance_of(facade_class).to receive(:ping).with(expected_facade_args)
+      expect_any_instance_of(facade_class).to receive(:ping).with(expected_facade_args).and_return(success: true)
       api_request(garage_system, :get, '/v1/command')
     end
   end

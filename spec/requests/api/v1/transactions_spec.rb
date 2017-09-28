@@ -12,11 +12,21 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
   let(:card_account_mapping) { create(:card_account_mapping, customer_account_mapping: customer_account_mapping) }
   let(:rfid_tag) { card_account_mapping.rfid_tag }
 
-  def fake_facade_response(success = true)
+  def fake_facade_response(success = true, result = {})
     {
       'success' => success,
-      'result' => {}
+      'result' => result
     }
+  end
+
+  shared_examples 'unknown media id' do |verb|
+    let(:facade_response) { fake_facade_response(false, reason: :unknown_medium) }
+
+    it 'returns status 422 and a message' do
+      api_request(garage_system, verb, api_path, params)
+      expect(last_response.status).to eq(422)
+      expect(last_response.body).to include_json(Media: { MediaId: I18n.t('errors.messages.invalid') })
+    end
   end
 
   describe 'PUT /transactions/:transaction_id' do
@@ -54,10 +64,16 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
     context 'with a newly started transaction' do
       let(:params) { basic_params.merge(Status: 0) }
       let(:expected_facade_args) { basic_facade_args }
-      it 'returns 204' do
+
+      before do
         expect_any_instance_of(facade_class).to receive(:rfid_tag_enters_parking_garage!)
           .with(expected_facade_args)
           .and_return(facade_response)
+      end
+
+      it_behaves_like 'unknown media id', :put
+
+      it 'returns 204' do
         api_request(garage_system, :put, api_path, params)
         expect(last_response.status).to eq(204)
       end
@@ -102,10 +118,15 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         args
       end
 
-      it 'returns 204' do
+      before do
         expect_any_instance_of(facade_class).to receive(:finish_transaction!)
           .with(expected_facade_args)
           .and_return(facade_response)
+      end
+
+      it_behaves_like 'unknown media id', :put
+
+      it 'returns 204' do
         api_request(garage_system, :put, api_path, params)
         expect(last_response.status).to eq(204)
       end
@@ -154,13 +175,19 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
 
     context 'with an exit to a started transaction' do
       let(:facade_response) { fake_facade_response(true) }
-      it 'returns status 204' do
+
+      before do
         expect_any_instance_of(facade_class).to receive(:finish_transaction!)
           .with(expected_facade_args)
           .and_return(facade_response)
+      end
+
+      it 'returns status 204' do
         api_request(garage_system, :put, api_path, params)
         expect(last_response.status).to eq(204)
       end
+
+      it_behaves_like 'unknown media id', :patch
     end
 
     context 'with a cancellation update' do
@@ -200,7 +227,16 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
       end
     end
 
-    context 'for a fully process transaction' do
+    context 'for an unknown transaction' do
+      let(:facade_response) { fake_facade_response(false, reason: :parking_transaction_not_found) }
+
+      it 'returns status 404' do
+        api_request(garage_system, :delete, api_path)
+        expect(last_response.status).to eq(404)
+      end
+    end
+
+    context 'for a fully processed transaction' do
       let(:facade_response) { fake_facade_response(false) }
       it 'returns status 409' do
         api_request(garage_system, :delete, api_path)

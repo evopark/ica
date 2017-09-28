@@ -42,7 +42,7 @@ RSpec.describe ICA::Endpoints::V1::Cards do
         expect_any_instance_of(ICA.garage_system_facade).to receive(:block_rfid_tag).with(
           hash_including(rfid_tag: { id: card_account_mapping.rfid_tag_id },
                          garage_ids: garage_ids)
-        )
+        ).and_return(success: true)
         api_request(garage_system, :post, "/v1/lock/cards/#{card_account_mapping.card_key}")
         expect(last_response.status).to eq(204)
       end
@@ -68,7 +68,7 @@ RSpec.describe ICA::Endpoints::V1::Cards do
         expect_any_instance_of(ICA.garage_system_facade).to receive(:unblock_rfid_tag).with(
           hash_including(rfid_tag: { id: card_account_mapping.rfid_tag_id },
                          garage_ids: garage_ids)
-        )
+        ).and_return(success: true)
         api_request(garage_system, :delete, "/v1/lock/cards/#{card_account_mapping.card_key}")
         expect(last_response.status).to eq(204)
       end

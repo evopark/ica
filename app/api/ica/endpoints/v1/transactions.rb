@@ -196,14 +196,13 @@ module ICA::Endpoints::V1
 
       desc 'Cancel a previously finished parking transaction'
       params do
-        optional :Amount, type: Hash do
-          use :Price
-        end
+        optional :Amount, type: BigDecimal
         optional :Info, type: String
+        optional :InfoId, type: Integer
       end
       delete ':transaction_id' do
         facade_arguments = default_facade_arguments
-        merge_payment_information(facade_arguments) if params[:Price].present?
+        facade_arguments[:payment] = { amount: params[:Amount] } if params[:Amount].present?
         facade_result = call_facade(:cancel_transaction!, facade_arguments)
         interpret_facade_result(facade_result)
       end

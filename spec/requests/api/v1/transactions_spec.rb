@@ -225,6 +225,26 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         api_request(garage_system, :delete, api_path)
         expect(last_response.status).to eq(204)
       end
+
+      context 'with amount present' do
+        let(:expected_facade_args) do
+          {
+            vendor: :ica,
+            transaction: {
+              external_key: transaction_id
+            },
+            payment: {
+              amount: 1.5
+            }
+          }
+        end
+
+        it 'returns status 204' do
+          payload = { Amount: 1.5, Info: '', InfoId: 1 }
+          api_request(garage_system, :delete, api_path, payload)
+          expect(last_response.status).to eq(204)
+        end
+      end
     end
 
     context 'for an unknown transaction' do

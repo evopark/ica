@@ -21,8 +21,11 @@ module ICA
       def garage_system
         @garage_system ||= begin
           client_id = headers['Clientid']
-          error!({ message: 'Client ID missing' }, 401) if client_id.blank?
-          ICA::GarageSystem.find_by(client_id: client_id)
+          if client_id.blank?
+            error!({ message: 'Client ID header missing. Cannot establish context for carpark id' }, 401)
+          else
+            ICA::GarageSystem.find_by(client_id: client_id)
+          end
         end
       end
 

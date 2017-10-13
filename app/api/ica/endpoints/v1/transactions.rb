@@ -86,7 +86,9 @@ module ICA::Endpoints::V1
 
       helpers do
         def carpark
-          garage_system.carparks.find_by(carpark_id: params[:CarParkId])
+          garage_system.carparks.find_by(carpark_id: params[:CarParkId]).tap do |carpark|
+            error!({ message: 'Carpark ID unknown' }, 422) if carpark.nil?
+          end
         end
 
         # Theoretically the API supports using different media for entry or exit

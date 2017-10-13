@@ -61,6 +61,15 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
     end
     let(:facade_response) { fake_facade_response(true) }
 
+    context 'with unknown carpark id' do
+      let(:params) { basic_params.merge(CarParkId: 404) }
+
+      it 'returns 422' do
+        api_request(garage_system, :put, api_path, params)
+        expect(last_response.status).to eq(422)
+      end
+    end
+
     context 'with a newly started transaction' do
       let(:params) { basic_params.merge(Status: 0) }
       let(:expected_facade_args) { basic_facade_args }

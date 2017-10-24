@@ -30,7 +30,7 @@ module ICA
       @garage_system.update(last_account_sync_at: started_at)
     rescue ActiveRecord::RecordNotFound
       log(:error, 'Could not find garage system to sync', ica_garage_system_id: garage_system_id)
-    rescue ICA::Errors::GarageSystemError => err
+    rescue ICA::GarageSystemError => err
       log(:error, "Failed to sync garage system: #{err.message}", ica_garage_system_id: garage_system_id)
       raise # AppSignal to the rescue -.-
     end
@@ -64,7 +64,7 @@ module ICA
     end
 
     def delete_old_accounts
-      execute_request(Requests::DeleteAccount,
+      execute_request(Requests::DeleteAccounts,
                       garage_system_service.synced_obsolete_customer_account_mappings,
                       'Failed to remove outdated accounts')
     end
@@ -76,9 +76,10 @@ module ICA
     end
 
     def execute_request(clazz, data, error_message)
+      return if data.none?
       request = clazz.new(@garage_system, data)
       return if request.execute
-      raise ICA::Errors::GarageSystemError.new(@garage_system.id, error_message)
+      raise ICA::GarageSystemError.new(@garage_system.id, error_message)
     end
   end
 end

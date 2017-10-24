@@ -206,7 +206,24 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         expect_any_instance_of(facade_class).to receive(:cancel_transaction!)
           .with(expected_facade_args)
           .and_return(facade_response)
-        api_request(garage_system, :put, api_path, params)
+        api_request(garage_system, :patch, api_path, params)
+        expect(last_response.status).to eq(204)
+      end
+    end
+
+    context 'with a immediately-finished transaction' do
+      let(:entered_at) { 1.hour.ago }
+
+      before do
+        params[:DriveIn] = { DateTime: entered_at.iso8601, Status: 1 }
+        expected_facade_args[:transaction][:started_at] = entered_at.change(usec: 0)
+        expect_any_instance_of(facade_class).to receive(:finish_transaction!)
+          .with(expected_facade_args)
+          .and_return(facade_response)
+      end
+
+      it 'returns status 204' do
+        api_request(garage_system, :patch, api_path, params)
         expect(last_response.status).to eq(204)
       end
     end

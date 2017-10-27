@@ -59,7 +59,7 @@ RSpec.describe ICA::Requests::CreateAccounts do
     # regression test to avoid duplicates for users w/ multiple cards
     let!(:card_account_mapping3) { create(:card_account_mapping, customer_account_mapping: customer_account_mapping1) }
 
-    subject { described_class.new(garage_system, garage_system.customer_account_mappings) }
+    subject { described_class.new(garage_system, garage_system.customer_account_mappings.not_uploaded) }
 
     it_behaves_like 'valid account request'
   end

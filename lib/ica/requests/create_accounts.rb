@@ -35,9 +35,10 @@ module ICA
       private
 
       def update_upload_timestamps(uploaded_at)
-        @account_mappings.update_all(uploaded_at: uploaded_at)
+        # run the second query first to avoid race conditions with merging a scope based on `uploaded_at`
         CardAccountMapping.joins(:customer_account_mapping).merge(@account_mappings)
                           .update_all(uploaded_at: uploaded_at)
+        @account_mappings.update_all(uploaded_at: uploaded_at)
       end
 
       # when uploading a list of all accounts, use PUT, otherwise POST

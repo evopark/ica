@@ -11,7 +11,7 @@ module ICA
 
     def outdated_accounts
       @garage_system.customer_account_mappings.joins(:user)
-                    .where('uploaded_at IS NOT NULL AND uploaded_at < :last_sync', last_sync: last_sync)
+                    .uploaded_before(last_sync)
                     .merge(updated_users_since_last_sync)
     end
 

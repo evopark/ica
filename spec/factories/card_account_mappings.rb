@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :card_account_mapping, class: 'ICA::CardAccountMapping' do
     association :rfid_tag, factory: %i[rfid_tag active], strategy: :build
     association :customer_account_mapping, strategy: :build

@@ -27,7 +27,7 @@ RSpec.describe ICA::Requests::CreateAccounts do
 
     it 'sends valid JSON with account data' do
       stub.with do |request|
-        expect(request.body).to be_a(ICA::CollectionStreamer)
+        expect { JSON.parse(request.body) }.to_not raise_exception
       end
       expect(subject.execute).to be_truthy
       expect(stub).to have_been_requested

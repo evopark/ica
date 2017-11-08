@@ -19,7 +19,7 @@ module ICA
                          controller_specs: false,
                          request_specs: false
         factory_path = File.expand_path('../../../spec/factories', __FILE__)
-        g.fixture_replacement :factory_girl, dir: factory_path
+        g.fixture_replacement :factory_bot, dir: factory_path
       end
 
       config.eager_load_paths << root.join('lib')

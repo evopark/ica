@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :carpark, class: 'ICA::Carpark' do
     sequence(:carpark_id)
 

@@ -23,7 +23,7 @@ RSpec.describe ICA::Requests::UpdateAccounts do
   it 'sends streamed JSON with account data' do
     stub.with do |request|
       expect(request.headers).to include_json('Accept' => 'application/json')
-      expect(request.body).to be_a(ICA::CollectionStreamer)
+      expect { JSON.parse(request.body) }.to_not raise_exception
     end
     expect(subject.execute).to be_truthy
     expect(stub).to have_been_requested

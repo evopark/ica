@@ -13,7 +13,7 @@ Sidekiq::Testing.fake!
 require 'rspec/rails'
 require 'capybara/rails'
 require 'capybara/rspec'
-require 'factory_girl_rails'
+require 'factory_bot_rails'
 require 'webmock/rspec'
 require 'paper_trail/frameworks/rspec'
 
@@ -29,7 +29,7 @@ ActiveRecord::Migration.check_pending! if defined?(ActiveRecord::Migration)
 Dir["#{File.dirname(__FILE__)}/factories/**/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|
-  config.include FactoryGirl::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods
 
   # The different available types are documented
   # in the features, such as in

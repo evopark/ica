@@ -67,7 +67,6 @@ SET default_with_oids = false;
 
 CREATE TABLE addresses (
     id integer NOT NULL,
-    user_id integer NOT NULL,
     "default" boolean,
     first_name character varying,
     last_name character varying,
@@ -80,7 +79,8 @@ CREATE TABLE addresses (
     street character varying,
     type character varying DEFAULT 'InvoiceAddress'::character varying,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    customer_id integer
 );
 
 
@@ -146,6 +146,68 @@ CREATE SEQUENCE blocklist_entries_id_seq
 --
 
 ALTER SEQUENCE blocklist_entries_id_seq OWNED BY blocklist_entries.id;
+
+
+--
+-- Name: customers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE customers (
+    id integer NOT NULL,
+    customer_number character varying NOT NULL,
+    workflow_state character varying NOT NULL,
+    feature_set_id integer,
+    brand user_brand DEFAULT 'evopark'::user_brand NOT NULL
+);
+
+
+--
+-- Name: customers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE customers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: customers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE customers_id_seq OWNED BY customers.id;
+
+
+--
+-- Name: customers_test_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE customers_test_groups (
+    id integer NOT NULL,
+    test_group_id integer,
+    customer_id integer
+);
+
+
+--
+-- Name: customers_test_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE customers_test_groups_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: customers_test_groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE customers_test_groups_id_seq OWNED BY customers_test_groups.id;
 
 
 --
@@ -220,11 +282,11 @@ ALTER SEQUENCE ica_carparks_id_seq OWNED BY ica_carparks.id;
 CREATE TABLE ica_customer_account_mappings (
     id integer NOT NULL,
     account_key uuid NOT NULL,
-    user_id integer NOT NULL,
     uploaded_at timestamp without time zone,
     garage_system_id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    customer_id integer NOT NULL
 );
 
 
@@ -452,12 +514,12 @@ ALTER SEQUENCE parking_garages_id_seq OWNED BY parking_garages.id;
 
 CREATE TABLE rfid_tags (
     id integer NOT NULL,
-    user_id integer,
     tag_number character varying NOT NULL,
     uid character varying,
     workflow_state character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    customer_id integer
 );
 
 
@@ -522,48 +584,15 @@ ALTER SEQUENCE test_groups_id_seq OWNED BY test_groups.id;
 
 
 --
--- Name: test_groups_users; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE test_groups_users (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    test_group_id integer NOT NULL
-);
-
-
---
--- Name: test_groups_users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE test_groups_users_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: test_groups_users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE test_groups_users_id_seq OWNED BY test_groups_users.id;
-
-
---
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE users (
     id integer NOT NULL,
     email character varying NOT NULL,
-    feature_set_id integer NOT NULL,
-    customer_number character varying NOT NULL,
-    workflow_state character varying NOT NULL,
-    brand user_brand DEFAULT 'evopark'::user_brand NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    customer_id integer NOT NULL
 );
 
 
@@ -633,6 +662,20 @@ ALTER TABLE ONLY addresses ALTER COLUMN id SET DEFAULT nextval('addresses_id_seq
 --
 
 ALTER TABLE ONLY blocklist_entries ALTER COLUMN id SET DEFAULT nextval('blocklist_entries_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY customers ALTER COLUMN id SET DEFAULT nextval('customers_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY customers_test_groups ALTER COLUMN id SET DEFAULT nextval('customers_test_groups_id_seq'::regclass);
 
 
 --
@@ -716,13 +759,6 @@ ALTER TABLE ONLY test_groups ALTER COLUMN id SET DEFAULT nextval('test_groups_id
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY test_groups_users ALTER COLUMN id SET DEFAULT nextval('test_groups_users_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
@@ -755,6 +791,22 @@ ALTER TABLE ONLY ar_internal_metadata
 
 ALTER TABLE ONLY blocklist_entries
     ADD CONSTRAINT blocklist_entries_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: customers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY customers
+    ADD CONSTRAINT customers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: customers_test_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY customers_test_groups
+    ADD CONSTRAINT customers_test_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -854,14 +906,6 @@ ALTER TABLE ONLY test_groups
 
 
 --
--- Name: test_groups_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY test_groups_users
-    ADD CONSTRAINT test_groups_users_pkey PRIMARY KEY (id);
-
-
---
 -- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -949,6 +993,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170808155619'),
 ('20170810114840'),
 ('20170825112043'),
-('20170830134633');
+('20170830134633'),
+('20171107162407'),
+('20171108102228'),
+('20711108112109');
 
 

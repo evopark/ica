@@ -10,11 +10,11 @@ FactoryBot.define do
     system_type 'ica'
   end
 
-  factory :user, class: User do
+  factory :customer, class: Customer do
     brand 'evopark'
-    sequence(:email) { |n| "user#{n}@evopark.de" }
     sequence(:customer_number) { |n| format('%05d', 12_345 + n) }
     feature_set_id { (1..10).to_a.sample }
+    association :user, strategy: :build
 
     association :current_invoice_address, strategy: :build, factory: :invoice_address
 
@@ -32,6 +32,10 @@ FactoryBot.define do
     trait :easy_to_park do
       brand 'easy_to_park'
     end
+  end
+
+  factory :user, class: User do
+    sequence(:email) { |n| "user#{n}@evopark.de" }
   end
 
   factory :rfid_tag, class: RfidTag do

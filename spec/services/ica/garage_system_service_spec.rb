@@ -6,14 +6,14 @@ RSpec.describe ICA::GarageSystemService do
 
   describe '#create_missing_mappings' do
     context 'with inactive or blocked cards' do
-      let!(:active_tag) { create(:rfid_tag, :active, user: build(:user)) }
-      let!(:inactive_tag) { create(:rfid_tag, :inactive, user: build(:user)) }
-      let(:blocked_tag) { create(:rfid_tag, :active, user: build(:user)) }
+      let!(:active_tag) { create(:rfid_tag, :active, customer: build(:customer)) }
+      let!(:inactive_tag) { create(:rfid_tag, :inactive, customer: build(:customer)) }
+      let(:blocked_tag) { create(:rfid_tag, :active, customer: build(:customer)) }
       let!(:blocklist_entry) { create(:blocklist_entry, rfid_tag: blocked_tag, parking_garage: build(:parking_garage)) }
       let!(:carpark) { create(:carpark, garage_system: garage_system, parking_garage: blocklist_entry.parking_garage) }
-      let(:tag_with_existing_mappings) { create(:rfid_tag, :active, user: build(:user)) }
+      let(:tag_with_existing_mappings) { create(:rfid_tag, :active, customer: build(:customer)) }
       let(:existing_account_mapping) do
-        create(:customer_account_mapping, garage_system: garage_system, user: tag_with_existing_mappings.user)
+        create(:customer_account_mapping, garage_system: garage_system, customer: tag_with_existing_mappings.customer)
       end
       let!(:existing_card_mapping) do
         create(:card_account_mapping, garage_system: garage_system,
@@ -38,10 +38,10 @@ RSpec.describe ICA::GarageSystemService do
       context 'in testing mode' do
         before { garage_system.update(workflow_state: 'testing') }
 
-        let(:test_card) { create(:rfid_tag, :active, user: build(:user)) }
-        let!(:test_group) { create(:test_group, users: [test_card.user]) }
+        let(:test_card) { create(:rfid_tag, :active, customer: build(:customer)) }
+        let!(:test_group) { create(:test_group, customers: [test_card.customer]) }
 
-        it 'only creates mappings for users in test groups' do
+        it 'only creates mappings for customers in test groups' do
           expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
           created_mapping = ICA::CardAccountMapping.find_by(rfid_tag: test_card)
           expect(created_mapping).to be_present
@@ -51,8 +51,8 @@ RSpec.describe ICA::GarageSystemService do
 
     context 'EASY TO PARK' do
       let(:garage_system) { create(:garage_system, :easy_to_park) }
-      let!(:etp_card) { create(:rfid_tag, :active, user: build(:user, :easy_to_park)) }
-      let!(:evopark_card) { create(:rfid_tag, :active, user: build(:user, :evopark)) }
+      let!(:etp_card) { create(:rfid_tag, :active, customer: build(:customer, :easy_to_park)) }
+      let!(:evopark_card) { create(:rfid_tag, :active, customer: build(:customer, :evopark)) }
 
       it 'only creates mappings for ETP cards' do
         expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
@@ -63,8 +63,8 @@ RSpec.describe ICA::GarageSystemService do
 
     context 'non-EASY-TO-PARK' do
       let(:garage_system) { create(:garage_system, :ica) }
-      let!(:etp_card) { create(:rfid_tag, :active, user: build(:user, :easy_to_park)) }
-      let!(:evopark_card) { create(:rfid_tag, :active, user: build(:user, :evopark)) }
+      let!(:etp_card) { create(:rfid_tag, :active, customer: build(:customer, :easy_to_park)) }
+      let!(:evopark_card) { create(:rfid_tag, :active, customer: build(:customer, :evopark)) }
 
       it 'only creates mappings for non-ETP cards' do
         expect { subject.create_missing_mappings }.to change { garage_system.customer_account_mappings.count }.by(1)
@@ -76,8 +76,8 @@ RSpec.describe ICA::GarageSystemService do
 
   describe '#synced_obsolete_customer_account_mappings' do
     def create_card_with_mappings(workflow_state = :active)
-      tag = create(:rfid_tag, workflow_state, user: build(:user))
-      customer_mapping = create(:customer_account_mapping, garage_system: garage_system, user: tag.user)
+      tag = create(:rfid_tag, workflow_state, customer: build(:customer))
+      customer_mapping = create(:customer_account_mapping, garage_system: garage_system, customer: tag.customer)
       create(:card_account_mapping, customer_account_mapping: customer_mapping, rfid_tag: tag)
     end
 

@@ -2,8 +2,8 @@
 
 # Simulates the TestGroup model from the main application
 class TestGroup < ApplicationRecord
-  has_and_belongs_to_many :users
-  has_many :rfid_tags, through: :users
+  has_and_belongs_to_many :customers
+  has_many :rfid_tags, through: :customers
   has_and_belongs_to_many :operator_companies
 
   enum garage_status: { setup_only: 'setup_only', always: 'always' }

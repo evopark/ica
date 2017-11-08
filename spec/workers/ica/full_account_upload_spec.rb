@@ -3,7 +3,7 @@
 RSpec.describe ICA::FullAccountUpload do
   let!(:carpark) { create(:carpark, garage_system: garage_system) }
   let(:parking_garage) { carpark.parking_garage }
-  # don't use an ETP system here because then we'd also need to consider this for every tag user
+  # don't use an ETP system here because then we'd also need to consider this for every tag customer
   let!(:garage_system) { create(:garage_system) }
 
   context 'with previously updated data' do
@@ -11,17 +11,17 @@ RSpec.describe ICA::FullAccountUpload do
     let!(:active_card_mapping) do
       create(:card_account_mapping, :uploaded,
              customer_account_mapping: active_account_mapping,
-             rfid_tag: create(:rfid_tag, :active, user: active_account_mapping.user))
+             rfid_tag: create(:rfid_tag, :active, customer: active_account_mapping.customer))
     end
     let!(:obsolete_card_mapping) do
       create(:card_account_mapping, :uploaded,
              customer_account_mapping: active_account_mapping,
-             rfid_tag: create(:rfid_tag, :inactive, user: active_account_mapping.user))
+             rfid_tag: create(:rfid_tag, :inactive, customer: active_account_mapping.customer))
     end
     let!(:blocked_card_mapping) do
       create(:card_account_mapping, :uploaded,
              customer_account_mapping: active_account_mapping,
-             rfid_tag: create(:rfid_tag, :active, user: active_account_mapping.user).tap do |tag|
+             rfid_tag: create(:rfid_tag, :active, customer: active_account_mapping.customer).tap do |tag|
                create(:blocklist_entry,
                       parking_garage: parking_garage, rfid_tag: tag)
              end)
@@ -30,7 +30,7 @@ RSpec.describe ICA::FullAccountUpload do
     let!(:obsolete_card_mapping2) do
       create(:card_account_mapping, :uploaded,
              customer_account_mapping: obsolete_account_mapping,
-             rfid_tag: create(:rfid_tag, :inactive, user: obsolete_account_mapping.user))
+             rfid_tag: create(:rfid_tag, :inactive, customer: obsolete_account_mapping.customer))
     end
 
     it 'destroys all obsolete mappings' do

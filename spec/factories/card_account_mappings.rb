@@ -6,7 +6,7 @@ FactoryBot.define do
     association :customer_account_mapping, strategy: :build
 
     after(:build) do |mapping|
-      mapping.rfid_tag.user = mapping.customer_account_mapping.user
+      mapping.rfid_tag.customer = mapping.customer_account_mapping.customer
     end
 
     trait :uploaded do

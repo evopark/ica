@@ -29,6 +29,9 @@ gem 'workflow', '~> 1.2', git: 'https://github.com/geekq/workflow.git'
 
 gem 'semantic'
 
+# Let data migrations act like DB structure migrations
+gem 'migration_data'
+
 # Admin UI
 gem 'autoprefixer-rails', '~> 6.4.0'
 gem 'bootstrap-sass'

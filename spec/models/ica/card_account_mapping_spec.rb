@@ -10,7 +10,7 @@ module ICA
     it { is_expected.to belong_to(:customer_account_mapping).class_name('ICA::CustomerAccountMapping') }
     it { is_expected.to belong_to(:rfid_tag) }
     it { is_expected.to have_one(:garage_system).through(:customer_account_mapping) }
-    it { is_expected.to have_one(:user).through(:customer_account_mapping) }
+    it { is_expected.to have_one(:customer).through(:customer_account_mapping) }
 
     it { is_expected.to validate_presence_of(:customer_account_mapping) }
 
@@ -79,7 +79,7 @@ module ICA
         before do
           carpark = create(:carpark, garage_system: subject.garage_system)
           test_group = create(:test_group, operator_companies: [carpark.parking_garage.operator_company])
-          test_group.users << subject.user
+          test_group.customers << subject.customer
         end
 
         it 'sets CardVariant to 1' do

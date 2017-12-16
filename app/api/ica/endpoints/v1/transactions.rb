@@ -91,13 +91,12 @@ module ICA::Endpoints::V1
           end
         end
 
-        # Theoretically the API supports using different media for entry or exit
-        # To keep things simple on our end, we just find the best-matching media:
-        # That should be the one from the top-level media key which contains the card number
-        # (it's specified that it's always card type 255 there)
+        # To avoid problems with duplicate card numbers, we need to look up the concrete RFID tag belonging to the
+        # media key specified in the request.
         def rfid_tag_information
+          rfid_tag_id = garage_system.card_account_mappings.find_by(card_key: params[:Media][:MediaKey]).rfid_tag_id
           {
-            rfid_tag: { tag_number: params[:Media][:MediaId] }
+            rfid_tag: { id: rfid_tag_id }
           }
         end
 

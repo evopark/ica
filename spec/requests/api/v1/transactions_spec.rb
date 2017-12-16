@@ -40,7 +40,8 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.tag_number
+          MediaId: rfid_tag.tag_number,
+          MediaKey: card_account_mapping.card_key
         },
         DriveIn: {
           DateTime: entered_at.iso8601,
@@ -58,7 +59,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
           device_id: device_id,
           started_at: entered_at.change(usec: 0)
         },
-        rfid_tag: { tag_number: rfid_tag.tag_number },
+        rfid_tag: { id: rfid_tag.id },
         garage: { id: carpark.parking_garage_id }
       }
     end
@@ -154,7 +155,8 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.tag_number
+          MediaId: rfid_tag.tag_number,
+          MediaKey: card_account_mapping.card_key
         },
         Status: 1,
         DriveOut: {
@@ -177,7 +179,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
           device_id: device_id,
           finished_at: exited_at.change(usec: 0)
         },
-        rfid_tag: { tag_number: rfid_tag.tag_number },
+        rfid_tag: { id: rfid_tag.id },
         garage: { id: carpark.parking_garage_id },
         payment: {
           amount: 12.34,

@@ -108,7 +108,7 @@ module ICA::Endpoints::V1
             }
           }.tap do |args|
             args.merge!(rfid_tag_information) if params[:Media].present?
-            args.merge!(garage: { id: carpark.parking_garage_id }) if params[:CarParkId].present?
+            args[:garage] = { id: carpark.parking_garage_id } if params[:CarParkId].present?
           end
         end
 
@@ -119,11 +119,13 @@ module ICA::Endpoints::V1
         end
 
         def merge_entry_information(facade_arguments)
-          facade_arguments[:transaction].merge!(started_at: params[:DriveIn][:DateTime])
+          facade_arguments[:transaction].merge!(started_at: params[:DriveIn][:DateTime],
+                                                device_id: params[:DriveIn][:DeviceNumber])
         end
 
         def merge_exit_information(facade_arguments)
-          facade_arguments[:transaction].merge!(finished_at: params[:DriveOut][:DateTime])
+          facade_arguments[:transaction].merge!(finished_at: params[:DriveOut][:DateTime],
+                                                device_id: params[:DriveOut][:DeviceNumber])
         end
 
         def interpret_facade_result(facade_result)

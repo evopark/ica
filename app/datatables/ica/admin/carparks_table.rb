@@ -10,7 +10,7 @@ module ICA::Admin
         id: carpark.id,
         parking_garage_name: carpark.parking_garage_name,
         garage_system_client_id: carpark.garage_system.client_id,
-        carpark_id: carpark.carpark_uid
+        carpark_id: carpark.carpark_id
       }
     end
 

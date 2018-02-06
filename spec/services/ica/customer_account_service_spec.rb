@@ -65,8 +65,6 @@ RSpec.describe ICA::CustomerAccountService do
         Customer.all.find_each do |customer|
           create(:customer_account_mapping, customer: customer, garage_system: garage_system, uploaded_at: 3.weeks.ago)
         end
-        # simulate paper trail from the real application
-        PaperTrail::Version.where(item_type: 'User').update_all(item_type: 'BaseUser')
       end
 
       def account_mapping_for(customer)

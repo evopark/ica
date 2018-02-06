@@ -57,7 +57,7 @@ module ICA
       # the PostgreSQL `?|` operator works with JSONB columns and yields any record where the JSON contains one of the
       # specified keys
       version_sql = <<-SQL
-        versions.item_type IN ('BaseUser', 'Customer')
+        versions.item_type IN ('User', 'Customer')
           AND versions.created_at >= :last_sync
           AND object_changes::jsonb ?| array[#{quoted.join(',')}]
       SQL

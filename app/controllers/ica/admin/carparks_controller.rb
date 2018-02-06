@@ -47,7 +47,7 @@ module ICA::Admin
     protected
 
     SETTINGS_PARAM = 'carpark'
-    PERMITTED_ATTRIBUTES = %i[parking_garage_id carpark_id].freeze
+    PERMITTED_ATTRIBUTES = %i[parking_garage_id carpark_id garage_system_id].freeze
     def carpark_params
       params.require(SETTINGS_PARAM).permit(*PERMITTED_ATTRIBUTES)
     end

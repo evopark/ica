@@ -4,6 +4,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
   let!(:garage_system) { create(:garage_system) }
   let(:facade_class) { ICA.garage_system_facade }
   let(:transaction_id) { SecureRandom.uuid }
+  let(:device_id) { 1 }
 
   let!(:carpark) { create(:carpark, garage_system: garage_system) }
   let(:api_path) { "/v1/transactions/#{transaction_id}" }
@@ -39,10 +40,12 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.tag_number
+          MediaId: rfid_tag.tag_number,
+          MediaKey: card_account_mapping.card_key
         },
         DriveIn: {
           DateTime: entered_at.iso8601,
+          DeviceNumber: device_id,
           Status: 1
         }
       }
@@ -53,9 +56,10 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         vendor: :ica,
         transaction: {
           external_key: transaction_id,
+          device_id: device_id,
           started_at: entered_at.change(usec: 0)
         },
-        rfid_tag: { tag_number: rfid_tag.tag_number },
+        rfid_tag: { id: rfid_tag.id },
         garage: { id: carpark.parking_garage_id }
       }
     end
@@ -108,6 +112,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
       let(:params) do
         basic_params.merge(Status: 1, DriveOut: {
                              DateTime: exited_at.iso8601,
+                             DeviceNumber: device_id,
                              Status: 1
                            },
                            Price: {
@@ -150,11 +155,13 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.tag_number
+          MediaId: rfid_tag.tag_number,
+          MediaKey: card_account_mapping.card_key
         },
         Status: 1,
         DriveOut: {
           DateTime: exited_at.iso8601,
+          DeviceNumber: device_id,
           Status: 1
         },
         Price: {
@@ -169,9 +176,10 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         vendor: :ica,
         transaction: {
           external_key: transaction_id,
+          device_id: device_id,
           finished_at: exited_at.change(usec: 0)
         },
-        rfid_tag: { tag_number: rfid_tag.tag_number },
+        rfid_tag: { id: rfid_tag.id },
         garage: { id: carpark.parking_garage_id },
         payment: {
           amount: 12.34,
@@ -215,7 +223,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
       let(:entered_at) { 1.hour.ago }
 
       before do
-        params[:DriveIn] = { DateTime: entered_at.iso8601, Status: 1 }
+        params[:DriveIn] = { DateTime: entered_at.iso8601, DeviceNumber: device_id, Status: 1 }
         expected_facade_args[:transaction][:started_at] = entered_at.change(usec: 0)
         expect_any_instance_of(facade_class).to receive(:finish_transaction!)
           .with(expected_facade_args)

@@ -41,6 +41,10 @@ module ICA
       end
     end
 
+    def to_s
+      "#{client_id}@#{hostname}/#{variant}"
+    end
+
     def test_groups
       return TestGroup.none if parking_garages.empty?
       test_groups = TestGroup.ica

@@ -93,7 +93,7 @@ group :development, :test do
   gem 'rubocop'
 
   gem 'activerecord-postgis-adapter'
-  gem 'pg'
+  gem 'pg', '~> 0.18'
   gem 'redis-rails', '~> 5.0.1'
   gem 'rgeo'
 

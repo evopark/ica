@@ -91,13 +91,12 @@ module ICA::Endpoints::V1
           end
         end
 
-        # Theoretically the API supports using different media for entry or exit
-        # To keep things simple on our end, we just find the best-matching media:
-        # That should be the one from the top-level media key which contains the card number
-        # (it's specified that it's always card type 255 there)
+        # To avoid problems with duplicate card numbers, we need to look up the concrete RFID tag belonging to the
+        # media key specified in the request.
         def rfid_tag_information
+          rfid_tag_id = garage_system.card_account_mappings.find_by(card_key: params[:Media][:MediaKey]).rfid_tag_id
           {
-            rfid_tag: { tag_number: params[:Media][:MediaId] }
+            rfid_tag: { id: rfid_tag_id }
           }
         end
 
@@ -108,7 +107,7 @@ module ICA::Endpoints::V1
             }
           }.tap do |args|
             args.merge!(rfid_tag_information) if params[:Media].present?
-            args.merge!(garage: { id: carpark.parking_garage_id }) if params[:CarParkId].present?
+            args[:garage] = { id: carpark.parking_garage_id } if params[:CarParkId].present?
           end
         end
 
@@ -119,11 +118,13 @@ module ICA::Endpoints::V1
         end
 
         def merge_entry_information(facade_arguments)
-          facade_arguments[:transaction].merge!(started_at: params[:DriveIn][:DateTime])
+          facade_arguments[:transaction].merge!(started_at: params[:DriveIn][:DateTime],
+                                                device_id: params[:DriveIn][:DeviceNumber])
         end
 
         def merge_exit_information(facade_arguments)
-          facade_arguments[:transaction].merge!(finished_at: params[:DriveOut][:DateTime])
+          facade_arguments[:transaction].merge!(finished_at: params[:DriveOut][:DateTime],
+                                                device_id: params[:DriveOut][:DeviceNumber])
         end
 
         def interpret_facade_result(facade_result)

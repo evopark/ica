@@ -6,7 +6,7 @@ require 'models/concerns/persisted_workflow'
 class RfidTag < ApplicationRecord
   has_paper_trail
 
-  belongs_to :user
+  belongs_to :customer
   has_many :blocklist_entries
   has_many :parking_card_add_ons
 

@@ -9,7 +9,7 @@ module ICA
   class CustomerAccountMapping < ICA::ApplicationRecord
     include UploadStatusScopes
 
-    belongs_to :user
+    belongs_to :customer
     belongs_to :garage_system, class_name: 'ICA::GarageSystem'
 
     has_many :card_account_mappings, class_name: 'ICA::CardAccountMapping', dependent: :destroy
@@ -21,7 +21,7 @@ module ICA
 
     # Determine whether the associated user is a test user in this system
     def test_user?
-      user.test_groups.merge(garage_system.test_groups).any?
+      customer.test_groups.merge(garage_system.test_groups).any?
     end
 
     def to_json_hash
@@ -35,7 +35,7 @@ module ICA
     private
 
     def invoice_address
-      user.current_invoice_address
+      customer.current_invoice_address
     end
 
     def card_data
@@ -62,7 +62,7 @@ module ICA
 
     def full_customer_data
       {
-        CustomerNo: user.customer_number,
+        CustomerNo: customer.customer_number,
         Gender: numeric_gender,
         Title: translated_salutation,
         FirstName: invoice_address.first_name,
@@ -70,7 +70,7 @@ module ICA
         PostalCode: invoice_address.zip_code,
         Location: invoice_address.city,
         Street: invoice_address.street,
-        EmailAddress: user.email
+        EmailAddress: customer.user.email
       }
     end
 
@@ -91,7 +91,7 @@ module ICA
     end
 
     def easy_to_park?
-      user.easy_to_park? && garage_system.easy_to_park?
+      customer.easy_to_park? && garage_system.easy_to_park?
     end
 
     def generate_account_key

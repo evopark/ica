@@ -8,7 +8,7 @@ module ICA::Endpoints::V1
     namespace 'accounts' do
       helpers do
         def account_mappings
-          garage_system.customer_account_mappings.uploaded.includes(:card_account_mappings, :user)
+          garage_system.customer_account_mappings.uploaded.includes(:card_account_mappings, :customer)
         end
       end
 

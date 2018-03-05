@@ -28,7 +28,7 @@ module ICA
       private
 
       def processing_success(mapping)
-        log(:info, 'Successfully removed account from ICA system', user_id: mapping.user_id)
+        log(:info, 'Successfully removed account from ICA system', customer_id: mapping.customer_id)
         mapping.destroy!
       end
 

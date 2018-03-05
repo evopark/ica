@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module ICA
-  # Functionality to work with {CustomerAccountMapping} and the {User} model
-  # TODO: Handle the scenario where a non-ETP-user suddenly becomes an ETP user but has multiple cards which were
+  # Functionality to work with {CustomerAccountMapping} and the {Customer} model
+  # TODO: Handle the scenario where a non-ETP-customer suddenly becomes an ETP customer but has multiple cards which were
   # already uploaded to the remote system. There might even be the other direction but that's not really supported.
   class CustomerAccountService
     def initialize(garage_system)
@@ -10,9 +10,9 @@ module ICA
     end
 
     def outdated_accounts
-      @garage_system.customer_account_mappings.joins(:user)
+      @garage_system.customer_account_mappings.joins(:customer)
                     .uploaded_before(last_sync)
-                    .merge(updated_users_since_last_sync)
+                    .merge(updated_customers_since_last_sync)
     end
 
     private
@@ -21,23 +21,23 @@ module ICA
       @garage_system.last_account_sync_at
     end
 
-    # brace yourselves... the most straightforward way to find users for whom any one of the following match:
+    # brace yourselves... the most straightforward way to find customers for whom any one of the following match:
     # - their email, feature set, brand or workflow state changed
     # - their address changed
     # - one of their RFID tags changed (workflow state), got blocked or unblocked
     # rubocop:disable Metrics/MethodLength
-    def updated_users_since_last_sync
+    def updated_customers_since_last_sync
       versions_with_changes = versions_with_changes(%w[email feature_set_id brand workflow_state])
       changes_query = <<-SQL
         (EXISTS
-          (SELECT versions.id FROM (#{versions_with_changes.to_sql}) versions WHERE versions.item_id = users.id)
+          (SELECT versions.id FROM (#{versions_with_changes.to_sql}) versions WHERE versions.item_id = customers.id)
         OR EXISTS
-          (SELECT addresses.id FROM addresses WHERE addresses.user_id = users.id
+          (SELECT addresses.id FROM addresses WHERE addresses.customer_id = customers.id
                                                 AND addresses.type = 'InvoiceAddress'
                                                 AND addresses.default = true
                                                 AND addresses.updated_at >= :last_sync)
         OR EXISTS
-          (SELECT rfid_tags.id FROM rfid_tags WHERE rfid_tags.user_id=users.id AND (rfid_tags.updated_at >= :last_sync
+          (SELECT rfid_tags.id FROM rfid_tags WHERE rfid_tags.customer_id=customers.id AND (rfid_tags.updated_at >= :last_sync
             OR EXISTS (SELECT blocks.id
                          FROM blocklist_entries blocks
                         WHERE blocks.rfid_tag_id = rfid_tags.id
@@ -47,7 +47,7 @@ module ICA
                                                             WHERE ica_carparks.garage_system_id = :garage_system_id))))
         )
       SQL
-      User.where(changes_query, last_sync: last_sync, garage_system_id: @garage_system.id)
+      Customer.where(changes_query, last_sync: last_sync, garage_system_id: @garage_system.id)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -57,7 +57,7 @@ module ICA
       # the PostgreSQL `?|` operator works with JSONB columns and yields any record where the JSON contains one of the
       # specified keys
       version_sql = <<-SQL
-        versions.item_type='BaseUser'
+        versions.item_type IN ('User', 'Customer')
           AND versions.created_at >= :last_sync
           AND object_changes::jsonb ?| array[#{quoted.join(',')}]
       SQL

@@ -6,7 +6,7 @@ module ICA
     include UploadStatusScopes
 
     belongs_to :customer_account_mapping, class_name: 'ICA::CustomerAccountMapping'
-    has_one :user, through: :customer_account_mapping
+    has_one :customer, through: :customer_account_mapping
     belongs_to :rfid_tag
     has_one :garage_system, through: :customer_account_mapping
 
@@ -58,7 +58,7 @@ module ICA
     end
 
     def test_card?
-      garage_system.test_groups.joins(:users).merge(User.where(id: customer_account_mapping.user_id)).any?
+      garage_system.test_groups.joins(:customers).merge(Customer.where(id: customer_account_mapping.customer_id)).exists?
     end
 
     def generate_card_key

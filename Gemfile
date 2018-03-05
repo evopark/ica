@@ -29,6 +29,9 @@ gem 'workflow', '~> 1.2', git: 'https://github.com/geekq/workflow.git'
 
 gem 'semantic'
 
+# Let data migrations act like DB structure migrations
+gem 'migration_data'
+
 # Admin UI
 gem 'autoprefixer-rails', '~> 6.4.0'
 gem 'bootstrap-sass'
@@ -90,7 +93,7 @@ group :development, :test do
   gem 'rubocop'
 
   gem 'activerecord-postgis-adapter'
-  gem 'pg'
+  gem 'pg', '~> 0.18'
   gem 'redis-rails', '~> 5.0.1'
   gem 'rgeo'
 

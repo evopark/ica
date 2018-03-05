@@ -7,7 +7,7 @@ module ICA
     it { is_expected.to have_attribute(:uploaded_at) }
     it { is_expected.to respond_to(:uploaded?) }
 
-    it { is_expected.to belong_to(:user) }
+    it { is_expected.to belong_to(:customer) }
     it { is_expected.to belong_to(:garage_system).class_name('ICA::GarageSystem') }
     it { is_expected.to have_many(:card_account_mappings).class_name('ICA::CardAccountMapping').dependent(:destroy) }
     it { is_expected.to have_many(:rfid_tags).through(:card_account_mappings) }
@@ -25,53 +25,53 @@ module ICA
     end
 
     describe '#to_json_hash' do
-      context 'for easy-to-park users' do
-        before { subject.user.brand = 'easy_to_park' }
+      context 'for easy-to-park customers' do
+        before { subject.customer.brand = 'easy_to_park' }
         context 'in easy-to-park systems' do
           before { subject.garage_system.variant = 'easy_to_park' }
 
           it 'contains the full address information' do
-            user = subject.user
-            address = subject.user.current_invoice_address
+            customer = subject.customer
+            address = subject.customer.current_invoice_address
             expect(subject.to_json_hash).to include_json(
               Customer: {
-                CustomerNo: user.customer_number,
+                CustomerNo: customer.customer_number,
                 FirstName: address.first_name,
                 LastName: address.last_name,
                 PostalCode: address.zip_code,
                 Location: address.city,
                 Street: address.street,
-                EmailAddress: user.email
+                EmailAddress: customer.user.email
               }
             )
           end
 
           it 'properly encodes address gender' do
-            subject.user.current_invoice_address.gender = 'male'
+            subject.customer.current_invoice_address.gender = 'male'
             expect(subject.to_json_hash).to include_json(Customer: { Gender: 1 })
-            subject.user.current_invoice_address.gender = 'female'
+            subject.customer.current_invoice_address.gender = 'female'
             expect(subject.to_json_hash).to include_json(Customer: { Gender: 2 })
           end
 
           context 'with academic title is present' do
-            before { subject.user.current_invoice_address.academic_title = 'dr' }
+            before { subject.customer.current_invoice_address.academic_title = 'dr' }
             it 'is used as salutation' do
-              expected_value = subject.user.current_invoice_address.translate_enum(:academic_title)
+              expected_value = subject.customer.current_invoice_address.translate_enum(:academic_title)
               expect(subject.to_json_hash).to include_json(Customer: { Title: expected_value })
             end
           end
 
           context 'without academic title' do
             it 'uses gender to determine salutation' do
-              expected_value = subject.user.current_invoice_address.translate_enum(:gender)
+              expected_value = subject.customer.current_invoice_address.translate_enum(:gender)
               expect(subject.to_json_hash).to include_json(Customer: { Title: expected_value })
             end
           end
         end
       end
 
-      context 'for non-easy-to-park users' do
-        before { subject.user.brand = 'evopark' }
+      context 'for non-easy-to-park customers' do
+        before { subject.customer.brand = 'evopark' }
         let(:customer_data) { subject.to_json_hash[:Customer] }
 
         context 'without associated card' do

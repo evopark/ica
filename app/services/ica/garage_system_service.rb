@@ -8,11 +8,11 @@ module ICA
     end
     delegate :parking_garages, to: :@garage_system
 
-    # Ensures that all users & parking cards have a mapping in the correct structure
+    # Ensures that all customers & parking cards have a mapping in the correct structure
     # The `uploaded_at` attribute is still null but they can then be picked up by the next sync
     def create_missing_mappings
       @garage_system.transaction do
-        active_cards_without_mapping.includes(:user).each do |active_card|
+        active_cards_without_mapping.includes(:customer).each do |active_card|
           create_card_mapping(active_card)
         end
       end
@@ -42,12 +42,12 @@ module ICA
 
     private
 
-    # Easy-To-Park systems receive easy-to-park users whereas non-ETP-systems only receive non-ETP users
+    # Easy-To-Park systems receive easy-to-park customers whereas non-ETP-systems only receive non-ETP customers
     # That means that ECE systems will need to be set up twice: once for ETP and once for evopark
-    # This is due to the way that ICA works internally to map the users to the corresponding vendor
-    def all_users
-      return User.where(brand: 'easy_to_park') if @garage_system.easy_to_park?
-      User.where.not(brand: 'easy_to_park')
+    # This is due to the way that ICA works internally to map the customers to the corresponding vendor
+    def all_customers
+      return Customer.where(brand: 'easy_to_park') if @garage_system.easy_to_park?
+      Customer.where.not(brand: 'easy_to_park')
     end
 
     def allowed_tags
@@ -61,7 +61,7 @@ module ICA
     # Also `premium_location` support would complicate things much more (would need to make accounts specific to
     # individual carparks) and since this is not planned for the foreseeable future, I skipped this as well
     def short_term_rfid_tags
-      RfidTag.with_active_state.short_term_allowed.joins(:user).merge(all_users)
+      RfidTag.with_active_state.short_term_allowed.joins(:customer).merge(all_customers)
     end
 
     # Since we cannot single out individual carparks when blocking a card, we need to find blocklist entries
@@ -82,7 +82,7 @@ module ICA
       rfid_tags = short_term_rfid_tags
       case @garage_system.workflow_state
       when 'live'
-        rfid_tags.excluding(RfidTag.joins(user: :test_groups).merge(TestGroup.setup_only))
+        rfid_tags.excluding(RfidTag.joins(customer: :test_groups).merge(TestGroup.setup_only))
       when 'testing'
         restrict_tags_by_test_groups(rfid_tags)
       else
@@ -92,7 +92,7 @@ module ICA
 
     def restrict_tags_by_test_groups(all_tags)
       all_tags
-        .joins(user: :test_groups)
+        .joins(customer: :test_groups)
         .merge(@garage_system.test_groups)
         .distinct
     end
@@ -103,12 +103,12 @@ module ICA
     end
 
     def find_or_create_account_mapping(rfid_tag)
-      # for Easy-To-Park: check if there is an account for the user and add it
+      # for Easy-To-Park: check if there is an account for the customer and add it
       # for everyone else: create a separate account
-      if @garage_system.easy_to_park? && rfid_tag.user.easy_to_park?
-        @garage_system.customer_account_mappings.find_or_create_by(user: rfid_tag.user)
+      if @garage_system.easy_to_park? && rfid_tag.customer.easy_to_park?
+        @garage_system.customer_account_mappings.find_or_create_by(customer: rfid_tag.customer)
       else
-        @garage_system.customer_account_mappings.create(user: rfid_tag.user)
+        @garage_system.customer_account_mappings.create(customer: rfid_tag.customer)
       end
     end
 

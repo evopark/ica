@@ -90,6 +90,37 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         api_request(garage_system, :put, api_path, params)
         expect(last_response.status).to eq(204)
       end
+
+      context 'CardAccountMapping mismatch on started transaction' do
+        let(:params) do
+          {
+            CarParkId: carpark.carpark_id,
+            AccountKey: customer_account_mapping.account_key,
+            Media: {
+              MediaId: rfid_tag.tag_number,
+              MediaKey: 'some unknown MediaKey',
+              MediaType: 255
+            },
+            DriveIn: {
+              DateTime: entered_at.iso8601,
+              DeviceNumber: device_id,
+              InfoId: nil,
+              Media: {
+                MediaId: rfid_tag.uid,
+                MediaKey: nil,
+                MediaType: 1
+              },
+              Status: 1
+            },
+            Status: 0
+          }
+        end
+
+        it 'returns 204' do
+          api_request(garage_system, :put, api_path, params)
+          expect(last_response.status).to eq(204)
+        end
+      end
     end
 
     context 'with invalid params' do

@@ -94,7 +94,10 @@ module ICA::Endpoints::V1
         # To avoid problems with duplicate card numbers, we need to look up the concrete RFID tag belonging to the
         # media key specified in the request.
         def rfid_tag_information
-          rfid_tag_id = garage_system.card_account_mappings.find_by(card_key: params[:Media][:MediaKey]).rfid_tag_id
+          rfid_tag_id = garage_system.card_account_mappings
+                                     .with_deleted
+                                     .find_by(card_key: params[:Media][:MediaKey])
+                                     .rfid_tag_id
           {
             rfid_tag: { id: rfid_tag_id }
           }
@@ -212,4 +215,5 @@ module ICA::Endpoints::V1
       end
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

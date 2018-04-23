@@ -5,6 +5,8 @@ module ICA
   class CardAccountMapping < ApplicationRecord
     include UploadStatusScopes
 
+    acts_as_paranoid
+
     belongs_to :customer_account_mapping, class_name: 'ICA::CustomerAccountMapping'
     has_one :customer, through: :customer_account_mapping
     belongs_to :rfid_tag
@@ -58,7 +60,10 @@ module ICA
     end
 
     def test_card?
-      garage_system.test_groups.joins(:customers).merge(Customer.where(id: customer_account_mapping.customer_id)).exists?
+      garage_system.test_groups
+                   .joins(:customers)
+                   .merge(Customer.where(id: customer_account_mapping.customer_id))
+                   .exists?
     end
 
     def generate_card_key

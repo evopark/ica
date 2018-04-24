@@ -18,15 +18,14 @@ module ICA
         error!({ message: 'Invalid or missing signature on request' }, 401)
       end
 
+      def requested_client_id
+        client_id = headers['Clientid']
+        return client_id if client_id.present?
+        error!({ message: 'Client ID header missing. Cannot establish context for carpark id' }, 401)
+      end
+
       def garage_system
-        @garage_system ||= begin
-          client_id = headers['Clientid']
-          if client_id.blank?
-            error!({ message: 'Client ID header missing. Cannot establish context for carpark id' }, 401)
-          else
-            ICA::GarageSystem.find_by(client_id: client_id)
-          end
-        end
+        @garage_system ||= ICA::GarageSystem.find_by(client_id: requested_client_id)
       end
 
       def call_facade(method_name, args)

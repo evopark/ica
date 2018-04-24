@@ -7,12 +7,32 @@ module ICA
     it { is_expected.to have_attribute(:uploaded_at) }
     it { is_expected.to respond_to(:uploaded?) }
 
+    # Associations
     it { is_expected.to belong_to(:customer_account_mapping).class_name('ICA::CustomerAccountMapping') }
     it { is_expected.to belong_to(:rfid_tag) }
     it { is_expected.to have_one(:garage_system).through(:customer_account_mapping) }
     it { is_expected.to have_one(:customer).through(:customer_account_mapping) }
 
+    # Validations
     it { is_expected.to validate_presence_of(:customer_account_mapping) }
+
+    # Scopes
+    describe '.with_card_key' do
+      before { subject.save! }
+      it 'returns card accounts mappings having the card key' do
+        create(:card_account_mapping, card_key: 'XYZ')
+        expect(described_class.with_card_key(subject.card_key)).to match_array(subject)
+      end
+    end
+
+    describe '.for_garage_system' do
+      let(:garage_system) { create(:garage_system, client_id: 'ABC_123') }
+      subject { create(:card_account_mapping, garage_system: garage_system) }
+      it 'returns card account mappings for certain garage system' do
+        create(:card_account_mapping, garage_system: create(:garage_system, client_id: 'XYZ456'))
+        expect(described_class.for_garage_system('ABC_123')).to match_array(subject)
+      end
+    end
 
     describe '#card_key' do
       it 'is automatically generated on create' do

@@ -4,13 +4,25 @@ module ICA
   RSpec.describe GarageSystem do
     subject { build(:garage_system) }
 
+    it { is_expected.to have_attribute(:last_account_sync_at) }
+
+    it { is_expected.to respond_to(:use_ssl?) }
+
+    # Validations
     it { is_expected.to validate_presence_of(:hostname) }
     it { is_expected.to validate_presence_of(:client_id) }
     it { is_expected.to validate_length_of(:client_id).is_at_least(6) }
     it { is_expected.to validate_uniqueness_of(:client_id) }
-    it { is_expected.to have_attribute(:last_account_sync_at) }
 
-    it { is_expected.to respond_to(:use_ssl?) }
+    # Scopes
+    describe '.with_client_id' do
+      before { subject.client_id = 'ABC_123' }
+      it 'returns garage systems having the client id' do
+        create(:garage_system, client_id: 'XYZ_456')
+        subject.save!
+        expect(described_class.with_client_id('ABC_123')).to match_array(subject)
+      end
+    end
 
     describe '#auth_key' do
       it { is_expected.to validate_presence_of(:auth_key) }

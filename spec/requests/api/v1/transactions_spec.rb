@@ -86,9 +86,15 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
 
       it_behaves_like 'unknown media id', :put
 
-      it 'returns 204' do
-        api_request(garage_system, :put, api_path, params)
-        expect(last_response.status).to eq(204)
+      context 'when card account mapping was deleted' do
+        let(:card_account_mapping) do
+          create(:card_account_mapping, deleted_at: 1.hour.ago,
+                                        customer_account_mapping: customer_account_mapping)
+        end
+        it 'returns 204' do
+          api_request(garage_system, :put, api_path, params)
+          expect(last_response.status).to eq(204)
+        end
       end
     end
 

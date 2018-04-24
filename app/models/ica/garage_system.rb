@@ -20,6 +20,8 @@ module ICA
 
     enum variant: { easy_to_park: 'easy_to_park', ica: 'ica' }
 
+    scope :with_client_id, ->(client_id) { where(client_id: client_id) }
+
     validates :path_prefix, format: { with: %r{\A/[\w/]+[^/]\Z} }, if: :path_prefix
 
     include PersistedWorkflow

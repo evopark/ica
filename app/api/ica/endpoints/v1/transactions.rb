@@ -94,13 +94,20 @@ module ICA::Endpoints::V1
         # To avoid problems with duplicate card numbers, we need to look up the concrete RFID tag belonging to the
         # media key specified in the request.
         def rfid_tag_information
-          rfid_tag_id = garage_system.card_account_mappings
-                                     .with_deleted
-                                     .find_by(card_key: params[:Media][:MediaKey])
-                                     .rfid_tag_id
           {
-            rfid_tag: { id: rfid_tag_id }
+            rfid_tag: {
+              id: find_rfid_tag_id(card_key: params[:Media][:MediaKey],
+                                   client_id: requested_client_id)
+            }
           }
+        end
+
+        def find_rfid_tag_id(card_key:, client_id:)
+          ICA::CardAccountMapping.with_deleted
+                                 .with_card_key(card_key)
+                                 .for_garage_system(client_id)
+                                 .pluck('rfid_tag_id')
+                                 .first
         end
 
         def default_facade_arguments

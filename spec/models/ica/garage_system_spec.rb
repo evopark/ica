@@ -12,7 +12,7 @@ module ICA
     it { is_expected.to validate_presence_of(:hostname) }
     it { is_expected.to validate_presence_of(:client_id) }
     it { is_expected.to validate_length_of(:client_id).is_at_least(6) }
-    it { is_expected.to validate_uniqueness_of(:client_id) }
+    it { is_expected.to validate_uniqueness_of(:client_id).scoped_to(:hostname) }
 
     # Scopes
     describe '.with_client_id' do

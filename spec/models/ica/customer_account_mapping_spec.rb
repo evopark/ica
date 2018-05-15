@@ -7,6 +7,8 @@ module ICA
     it { is_expected.to have_attribute(:uploaded_at) }
     it { is_expected.to respond_to(:uploaded?) }
 
+    it { is_expected.to respond_to(:deleted_at) }
+
     it { is_expected.to belong_to(:customer) }
     it { is_expected.to belong_to(:garage_system).class_name('ICA::GarageSystem') }
     it { is_expected.to have_many(:card_account_mappings).class_name('ICA::CardAccountMapping').dependent(:destroy) }

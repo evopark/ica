@@ -7,6 +7,7 @@ module ICA
   # Note that the relation to the main applications {User} class is mainly to ensure data integrity:
   # all interaction with actual user information is done through the {UserDataFacade}.
   class CustomerAccountMapping < ICA::ApplicationRecord
+    acts_as_paranoid
     include UploadStatusScopes
 
     belongs_to :customer

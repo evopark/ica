@@ -7,6 +7,8 @@ module ICA
     it { is_expected.to have_attribute(:uploaded_at) }
     it { is_expected.to respond_to(:uploaded?) }
 
+    it { is_expected.to respond_to(:deleted_at) }
+
     # Associations
     it { is_expected.to belong_to(:customer_account_mapping).class_name('ICA::CustomerAccountMapping') }
     it { is_expected.to belong_to(:rfid_tag) }

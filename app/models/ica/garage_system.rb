@@ -5,10 +5,10 @@ require 'models/concerns/persisted_workflow'
 module ICA
   # Used to identify who is calling in to the API
   class GarageSystem < ICA::ApplicationRecord
-    validates :client_id, presence: true, length: { minimum: 6 }, uniqueness: true
     validates :sig_key, presence: true, format: /\A[0-9a-f]{64}\Z/
     validates :auth_key, presence: true, format: /\A[0-9a-f]{64}\Z/
     validates :hostname, presence: true
+    validates :client_id, presence: true, length: { minimum: 6 }, uniqueness: { scope: :hostname }
 
     has_many :carparks, inverse_of: :garage_system
     has_many :parking_garages, through: :carparks

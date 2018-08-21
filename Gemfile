@@ -53,7 +53,7 @@ gem 'sidekiq', '~> 4.2.0'
 gem 'sidetiq'
 
 # The API for incoming requests
-gem 'grape', '~> 0.19.0'
+gem 'grape', '~> 1.1.0'
 # gem 'grape-rails-cache', git: private_github_uri('grape-rails-cache')
 gem 'grape-entity'
 

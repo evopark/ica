@@ -5,7 +5,8 @@ default: &default
   pool: 3
   host: localhost
   sslmode: disable
-  username: root
+  username: evopark
+  password: HhmotRCStJz8ySUnH9Mn
   port: 5432
 
 test:

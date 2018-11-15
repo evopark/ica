@@ -13,6 +13,10 @@ jobs:
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
        - image: circleci/postgres:9.6-alpine
+         environment:
+            POSTGRES_USER: evopark
+            POSTGRES_DB: circle_test
+            POSTGRES_PASSWORD: HhmotRCStJz8ySUnH9Mn
 
     working_directory: ~/repo
 

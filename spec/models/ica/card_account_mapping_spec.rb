@@ -55,7 +55,7 @@ module ICA
       end
 
       it 'includes the tag number in media type 255' do
-        expect(subject.to_json_hash[:Media]).to include(MediaType: 255, MediaId: subject.rfid_tag.tag_number)
+        expect(subject.to_json_hash[:Media]).to include(MediaType: 255, MediaId: subject.rfid_tag.uid)
       end
 
       it 'includes the UID in media type 1' do

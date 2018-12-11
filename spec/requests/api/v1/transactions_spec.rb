@@ -40,7 +40,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.uid,
+          MediaId: rfid_tag.tag_number,
           MediaKey: card_account_mapping.card_key
         },
         DriveIn: {
@@ -156,12 +156,13 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
   describe 'PATCH /transactions/:transaction_id' do
     let(:exited_at) { 1.second.ago }
     let(:params) do
+      # TODO: 2019-04-01, Remove the tag number splitting for artificial Sunhill number
       {
         CarParkId: carpark.carpark_id,
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.uid,
+          MediaId: rfid_tag.tag_number.split('-').first,
           MediaKey: card_account_mapping.card_key
         },
         Status: 1,

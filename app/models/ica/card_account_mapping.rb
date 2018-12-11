@@ -35,6 +35,7 @@ module ICA
     private
 
     # rubocop:disable Metrics/MethodLength
+    # TODO: 2019-04-01, find stable solution for uniq tag numbers on data level
     def media_list
       [
         {
@@ -43,7 +44,7 @@ module ICA
         },
         {
           MediaType: 255,
-          MediaId: rfid_tag.uid
+          MediaId: rfid_tag.tag_number.split('-').first # Sunhill workaround
         }
       ].tap do |list|
         legic_addon = rfid_tag.parking_card_add_ons.legic_prime.first

@@ -43,7 +43,7 @@ module ICA
         },
         {
           MediaType: 255,
-          MediaId: rfid_tag.uid
+          MediaId: rfid_tag.tag_number
         }
       ].tap do |list|
         legic_addon = rfid_tag.parking_card_add_ons.legic_prime.first

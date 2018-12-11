@@ -40,7 +40,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.uid,
+          MediaId: rfid_tag.tag_number,
           MediaKey: card_account_mapping.card_key
         },
         DriveIn: {
@@ -161,7 +161,7 @@ RSpec.describe ICA::Endpoints::V1::Transactions do
         AccountKey: customer_account_mapping.account_key,
         Media: {
           MediaType: 255,
-          MediaId: rfid_tag.uid,
+          MediaId: rfid_tag.tag_number,
           MediaKey: card_account_mapping.card_key
         },
         Status: 1,

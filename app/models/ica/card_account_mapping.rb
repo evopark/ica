@@ -44,7 +44,7 @@ module ICA
         },
         {
           MediaType: 255,
-          MediaId: rfid_tag.tag_number.split('-').first # Sunhill workaround
+          MediaId: rfid_tag.decorate.external_id
         }
       ].tap do |list|
         legic_addon = rfid_tag.parking_card_add_ons.legic_prime.first

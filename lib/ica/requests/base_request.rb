@@ -33,7 +33,8 @@ module ICA
           'ClientId' => @garage_system.client_id,
           'AuthKey' => @garage_system.auth_key,
           'LocalTime' => time,
-          'Signature' => signature
+          'Signature' => signature,
+          'Transfer-Encoding' => 'chunked'
         }
       end
 

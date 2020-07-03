@@ -12,9 +12,9 @@ module ICA
 
     def mark_uploaded(uploaded_at: Time.current)
       customer_account_mapping.transaction do  
-        customer_account_mapping.update_attribute uploaded_at: uploaded_at
+        customer_account_mapping.update_attribute :uploaded_at, uploaded_at
         card_account_mappings.each do |card|
-          card.update_attribute uploaded_at: uploaded_at
+          card.update_attribute :uploaded_at, uploaded_at
         end
       end
     end

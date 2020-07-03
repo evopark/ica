@@ -3,10 +3,28 @@
 module ICA
   # Provides helper functions to work with garage system data
   class GarageSystemService
+    attr_reader :garage_system
+
     def initialize(garage_system)
       @garage_system = garage_system
     end
     delegate :parking_garages, to: :@garage_system
+
+    def upload(customer_account_mapping)
+      response = garage_system_request.post customer_account_mapping
+      return unless response.status.success?
+      CustomerAccountMappingService.new(customer_account_mapping).mark_uploaded
+      customer_account_mapping
+    end
+
+    def build_card_account_mapping(rfid_tag)
+      account_mapping = find_or_build_account_mapping rfid_tag.customer
+      account_mapping.account_key = SecureRandom.uuid
+      account_mapping.card_account_mappings
+                     .build card_key: SecureRandom.uuid,
+                            rfid_tag: rfid_tag,
+                            garage_system: garage_system
+    end
 
     # Ensures that all customers & parking cards have a mapping in the correct structure
     # The `uploaded_at` attribute is still null but they can then be picked up by the next sync
@@ -40,7 +58,28 @@ module ICA
       SQL
     end
 
+    # Finds all tags that are in the list of allowed tags
+    # but have not yet been submitted to the remote system
+    def active_cards_without_mapping
+      allowed_tags.where(ACTIVE_CARDS_WITHOUT_MAPPING_QUERY, garage_system_id: @garage_system.id)
+    end
+
     private
+
+    # because the BaseRequest class was built awkward, we have to work around it:
+    def garage_system_upload_request
+      @garage_system_upload_request ||= GarageSystemRequest.new garage_system
+    end
+    
+    def find_or_build_account_mapping(customer)
+      if garage_system.easy_to_park? && customer.easy_to_park?
+        garage_system.customer_account_mappings
+                     .find_or_initialize_by customer: customer
+      else
+        garage_system.customer_account_mappings
+                     .build customer: customer
+      end
+    end
 
     # Easy-To-Park systems receive easy-to-park customers whereas non-ETP-systems only receive non-ETP customers
     # That means that ECE systems will need to be set up twice: once for ETP and once for evopark
@@ -124,11 +163,5 @@ module ICA
                      AND card_mappings.customer_account_mapping_id = customer_mappings.id
                    WHERE card_mappings.rfid_tag_id = rfid_tags.id)
     SQL
-
-    # Finds all tags that are in the list of allowed tags
-    # but have not yet been submitted to the remote system
-    def active_cards_without_mapping
-      allowed_tags.where(ACTIVE_CARDS_WITHOUT_MAPPING_QUERY, garage_system_id: @garage_system.id)
-    end
   end
 end

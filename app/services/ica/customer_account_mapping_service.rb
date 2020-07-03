@@ -10,7 +10,7 @@ module ICA
       @customer_account_mapping = customer_account_mapping
     end
 
-    def mark_uploaded(uploaded_at:)
+    def mark_uploaded(uploaded_at: Time.current)
       customer_account_mapping.transaction do  
         customer_account_mapping.update_attribute uploaded_at: uploaded_at
         card_account_mappings.each do |card|

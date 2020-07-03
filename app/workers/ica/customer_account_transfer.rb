@@ -7,9 +7,9 @@ module ICA
   # by batch processing
   class CustomerAccountTransfer
     include Sidekiq::Worker
-    include Sidetiq::Schedulable
+#    include Sidetiq::Schedulable
 
-    recurrence(backfill: false) { hourly }
+#    recurrence(backfill: false) { hourly }
 
     delegate :log, to: GraylogHelper
 

@@ -6,9 +6,9 @@ module ICA
   # Creates all missing customer account mappings for the newly active RFID tags
   class CustomerAccountMappingShop
     include Sidekiq::Worker
-    include Sidetiq::Schedulable
+#    include Sidetiq::Schedulable
 
-    recurrence(backfill: false) { hourly }
+#    recurrence(backfill: false) { hourly }
 
     delegate :log, to: GraylogHelper
 

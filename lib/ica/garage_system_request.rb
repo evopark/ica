@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'base_request'
-require 'ica/collection_streamer'
+require_relative 'collection_streamer'
+require 'ica/requests/base_request'
 
 module ICA
   # Deals with gaarge system related requests at the ICA remote system

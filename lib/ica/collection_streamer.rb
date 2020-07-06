@@ -7,8 +7,8 @@ module ICA
   class CollectionStreamer
     include Enumerable # mostly for compatibility with HTTP.rb
 
-    def initialize(mappings)
-      @mappings = mappings
+    def initialize(*mappings)
+      @mappings = mappings.flatten
     end
 
     def each
@@ -16,7 +16,7 @@ module ICA
       first = true
       # find_each uses batches to avoid having too many queries
       # note that this prevents limit() queries
-      @mappings.find_each do |object|
+      @mappings.each do |object|
         buffer = if first
                    first = false
                    ''

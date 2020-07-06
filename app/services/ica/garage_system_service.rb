@@ -11,9 +11,10 @@ module ICA
     delegate :parking_garages, to: :@garage_system
 
     def upload(customer_account_mapping)
-      response = garage_system_request.post customer_account_mapping
+      response = garage_system_upload_request.post customer_account_mapping
       return unless response.status.success?
       CustomerAccountMappingService.new(customer_account_mapping).mark_uploaded
+      customer_account_mapping.save!
       customer_account_mapping
     end
 

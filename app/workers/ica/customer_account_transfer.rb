@@ -19,14 +19,14 @@ module ICA
 
     private
 
-    def transfer_missing_accounts(garage_system)
-      log :info, "Start customer account transfer for #{garage_system.client_id}",
+    def transfer_missing_accounts(system)
+      log :info, "Start customer account transfer for #{system.client_id}",
                  started_at: Time.current
-      garage_system_service = GarageSystemService.new garage_system
-      garage_system.customer_account_mappings.not_uploaded.find_each(50) do |account|
-        garage_system_service.upload account
+      garage_system_service = GarageSystemService.new system
+      system.customer_account_mappings.not_uploaded.find_each(batch_size: 50) do |account|
+        garage_system_service.upload account_mapping
       end
-      garage_system.update_attribute last_account_sync_at: Time.current
+      system.update_attribute last_account_sync_at: Time.current
     end
   end
 end

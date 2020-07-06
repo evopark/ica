@@ -6,7 +6,7 @@ module ICA
   # Creates all missing customer account mappings for the newly active RFID tags
   class CustomerAccountMappingShop
     include Sidekiq::Worker
-#    include Sidetiq::Schedulable
+    include Sidetiq::Schedulable
 
 #    recurrence(backfill: false) { hourly }
 
@@ -19,18 +19,10 @@ module ICA
     private
 
     def create_missing_accounts(garage_system)
-      each_unmapped_rfid_tag(garage_system) do |rfid_tag, garage_system_service|
-        card_account_mapping = garage_system_service.build_card_account_mapping rfid_tag
-        card_account_mapping.save!
-      end
-    end
-
-    def each_unmapped_rfid_tag(garage_system)
       service = GarageSystemService.new garage_system
-      service.active_cards_without_mapping.includes(:customer).find_each do |rfid_tags|
-        rfid_tags.each do |rfid_tag|
-          yield rfid_tag, garage_system_service
-        end
+      service.active_cards_without_mapping.includes(:customer).find_each do |rfid_tag|
+        card_account_mapping = service.build_card_account_mapping rfid_tag
+        card_account_mapping.save!
       end
     end
   end

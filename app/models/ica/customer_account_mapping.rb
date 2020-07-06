@@ -13,7 +13,9 @@ module ICA
     belongs_to :customer
     belongs_to :garage_system, class_name: 'ICA::GarageSystem'
 
-    has_many :card_account_mappings, class_name: 'ICA::CardAccountMapping', dependent: :destroy
+    has_many :card_account_mappings, class_name: 'ICA::CardAccountMapping',
+                                     dependent: :destroy,
+                                     autosave: true
     has_many :rfid_tags, through: :card_account_mappings
 
     before_validation :generate_account_key, on: :create

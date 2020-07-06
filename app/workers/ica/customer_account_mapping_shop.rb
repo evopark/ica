@@ -8,7 +8,7 @@ module ICA
     include Sidekiq::Worker
     include Sidetiq::Schedulable
 
-#    recurrence(backfill: false) { hourly }
+    recurrence(backfill: false) { hourly }
 
     delegate :log, to: GraylogHelper
 

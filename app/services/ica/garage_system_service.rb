@@ -27,16 +27,6 @@ module ICA
                             garage_system: garage_system
     end
 
-    # Ensures that all customers & parking cards have a mapping in the correct structure
-    # The `uploaded_at` attribute is still null but they can then be picked up by the next sync
-    def create_missing_mappings
-      @garage_system.transaction do
-        active_cards_without_mapping.includes(:customer).each do |active_card|
-          create_card_mapping(active_card)
-        end
-      end
-    end
-
     # Here we don't take cards into accounts that were recently blocked because those are not supposed to be deleted
     # from the remote system. But that is not a problem for the full re-sync: in that case, we use `#allowed_tags`
     def synced_obsolete_customer_account_mappings(full_sync: false)
@@ -135,25 +125,6 @@ module ICA
         .joins(customer: :test_groups)
         .merge(@garage_system.test_groups)
         .distinct
-    end
-
-    def create_card_mapping(rfid_tag)
-      account_mapping = find_or_create_account_mapping(rfid_tag)
-      add_card_mapping_to_account(account_mapping, rfid_tag)
-    end
-
-    def find_or_create_account_mapping(rfid_tag)
-      # for Easy-To-Park: check if there is an account for the customer and add it
-      # for everyone else: create a separate account
-      if @garage_system.easy_to_park? && rfid_tag.customer.easy_to_park?
-        @garage_system.customer_account_mappings.find_or_create_by(customer: rfid_tag.customer)
-      else
-        @garage_system.customer_account_mappings.create(customer: rfid_tag.customer)
-      end
-    end
-
-    def add_card_mapping_to_account(account_mapping, rfid_tag)
-      account_mapping.card_account_mappings.create(rfid_tag: rfid_tag)
     end
 
     ACTIVE_CARDS_WITHOUT_MAPPING_QUERY = <<-SQL

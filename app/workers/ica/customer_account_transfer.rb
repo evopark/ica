@@ -24,7 +24,7 @@ module ICA
                  started_at: Time.current
       garage_system_service = GarageSystemService.new system
       system.customer_account_mappings.not_uploaded.find_each(batch_size: 50) do |account|
-        garage_system_service.upload account_mapping
+        garage_system_service.upload account
       end
       system.update_attribute last_account_sync_at: Time.current
     end

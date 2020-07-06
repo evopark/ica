@@ -20,7 +20,7 @@ module ICA
 
     def create_missing_accounts(garage_system)
       each_unmapped_rfid_tag(garage_system) do |rfid_tag, garage_system_service|
-        card_account_mapping = garage_system_service.build_card_mapping rfid_tag
+        card_account_mapping = garage_system_service.build_card_account_mapping rfid_tag
         card_account_mapping.save!
       end
     end

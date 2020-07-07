@@ -23,7 +23,6 @@ module ICA
     def perform(garage_system_id)
       started_at = Time.now
       @garage_system = ICA::GarageSystem.find(garage_system_id)
-      garage_system_service.create_missing_mappings
       delete_old_accounts
       delete_old_cards
       upload_unsynced_data
@@ -46,7 +45,6 @@ module ICA
     end
 
     def upload_unsynced_data
-      @garage_system.transaction { create_new_accounts }
       @garage_system.transaction { update_existing_accounts }
     end
 

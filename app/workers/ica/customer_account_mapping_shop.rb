@@ -13,7 +13,7 @@ module ICA
     delegate :log, to: GraylogHelper
 
     def perform
-      GarageSystem.all { |garage_system| create_missing_accounts garage_system }
+      GarageSystem.all.each { |garage_system| create_missing_accounts garage_system }
     end
 
     private

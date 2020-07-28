@@ -20,10 +20,22 @@ module ICA
 
     def create_missing_accounts(garage_system)
       service = GarageSystemService.new garage_system
-      service.active_cards_without_mapping.includes(:customer).find_each do |rfid_tag|
+      service.active_cards_without_mapping
+             .includes(:customer)
+             .where("customers.brand" => supported_brands)
+             .find_each do |rfid_tag|
         card_account_mapping = service.build_card_account_mapping rfid_tag
         card_account_mapping.save!
       end
+    end
+
+    # Since the ICA API is designed to give a card permission for all or none of
+    # their parking garages, we can not distinguish on garage-level
+    def supported_brands
+      @supported_brands ||= Brand.joins(:parking_garages)
+                                 .where("parking_garages.system_type" => :ica)
+                                 .group('brands.id')
+                                 .pluck(:name)
     end
   end
 end

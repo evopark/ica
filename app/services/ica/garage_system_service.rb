@@ -56,8 +56,8 @@ module ICA
 
     private
 
-    def publish(customer_account_mapping)
-      method = :put if customer_account_mapping.persisted?
+    def publish(customer_account_mapping, method = :post)
+      method = :put if customer_account_mapping.uploaded?
       response = upload_request.perform method, customer_account_mapping
       return unless response.status.success?
 

@@ -14,19 +14,12 @@ module ICA
     delegate :log, to: GraylogHelper
 
     def perform
-      GarageSystem.all.each { |garage_system| transfer_missing_accounts garage_system }
-    end
-
-    private
-
-    def transfer_missing_accounts(system)
-      log :info, "Start customer account transfer for #{system.client_id}",
-                 started_at: Time.current
-      garage_system_service = GarageSystemService.new system
-      system.customer_account_mappings.not_uploaded.find_each(batch_size: 50) do |account|
-        garage_system_service.upload account
+      GarageSystem.all.each do |garage_system|
+        log :info, "Start customer account transfer for #{garage_system.client_id}",
+                   started_at: Time.current
+        GarageSystemService.new(garage_system).synchronize_with_remote
+        garage_system.update_attribute :last_account_sync_at, Time.current
       end
-      system.update_attribute :last_account_sync_at, Time.current
     end
   end
 end

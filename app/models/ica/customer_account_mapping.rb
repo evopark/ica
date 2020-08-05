@@ -22,6 +22,12 @@ module ICA
 
     validates :garage_system, presence: true
 
+    scope :out_of_sync, -> do
+      joins(:card_account_mappings)
+        .where("#{table_name}.uploaded_at IS NULL OR "\
+               "(ica_card_account_mappings.uploaded_at IS NULL AND #{table_name}.uploaded_at IS NOT NULL)")
+        .uniq
+    end
     # Determine whether the associated user is a test user in this system
     def test_user?
       customer.test_groups.merge(garage_system.test_groups).any?

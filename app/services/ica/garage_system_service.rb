@@ -5,17 +5,16 @@ module ICA
   class GarageSystemService
     attr_reader :garage_system
 
+    delegate :customer_account_mappings, :parking_garages, to: :garage_system
+
     def initialize(garage_system)
       @garage_system = garage_system
     end
-    delegate :parking_garages, to: :@garage_system
 
-    def upload(customer_account_mapping)
-      response = garage_system_upload_request.post customer_account_mapping
-      return unless response.status.success?
-      CustomerAccountMappingService.new(customer_account_mapping).mark_uploaded
-      customer_account_mapping.save!
-      customer_account_mapping
+    def synchronize_with_remote
+      customer_account_mappings.out_of_sync.find_each(batch_size: 50) do |account|
+        publish account 
+      end
     end
 
     def build_card_account_mapping(rfid_tag)
@@ -57,9 +56,25 @@ module ICA
 
     private
 
+    def publish(customer_account_mapping)
+      method = :put if customer_account_mapping.persisted?
+      response = upload_request.perform method, customer_account_mapping
+      return unless response.status.success?
+
+      mark_uploaded Time.current
+    end
+
+    def mark_uploaded(uploaded_at)
+      customer_account_mapping.uploaded_at = uploaded_at
+      card_account_mappings.each do |card|
+        card.uploaded_at = uploaded_at
+      end
+      customer_account_mapping.save!
+    end
+
     # because the BaseRequest class was built awkward, we have to work around it:
-    def garage_system_upload_request
-      @garage_system_upload_request ||= GarageSystemRequest.new garage_system
+    def upload_request
+      @upload_request ||= GarageSystemRequest.new garage_system
     end
     
     def find_or_build_account_mapping(customer)

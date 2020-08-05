@@ -10,11 +10,11 @@ module ICA
     PATH = '/v1/accounts'
 
     # Transfers an account mapping to ICA remote system
-    def post(account_mapping)
+    def perform(method, account_mapping)
       body = ICA::CollectionStreamer.new account_mapping
       log :info, 'Upload account to ICA', account_key: account_mapping.account_key,
                                           body: body
-      response = request :post, PATH, body
+      response = request method, PATH, body
       log_error(account_mapping.account_key, response) unless response.status.success?
       response
     end

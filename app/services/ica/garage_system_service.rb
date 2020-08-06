@@ -13,7 +13,7 @@ module ICA
 
     def synchronize_with_remote
       customer_account_mappings.out_of_sync.find_each(batch_size: 50) do |account|
-        publish account 
+        CustomerAccountMappingService.new(account).publish garage_system: garage_system
       end
     end
 
@@ -55,27 +55,6 @@ module ICA
     end
 
     private
-
-    def publish(customer_account_mapping, method = :post)
-      method = :put if customer_account_mapping.uploaded?
-      response = upload_request.perform method, customer_account_mapping
-      return unless response.status.success?
-
-      mark_uploaded customer_account_mapping
-    end
-
-    def mark_uploaded(customer_account_mapping, uploaded_at = Time.current)
-      customer_account_mapping.uploaded_at = uploaded_at
-      card_account_mappings.each do |card|
-        card.uploaded_at = uploaded_at
-      end
-      customer_account_mapping.save!
-    end
-
-    # because the BaseRequest class was built awkward, we have to work around it:
-    def upload_request
-      @upload_request ||= GarageSystemRequest.new garage_system
-    end
     
     def find_or_build_account_mapping(customer)
       if garage_system.easy_to_park? && customer.easy_to_park?

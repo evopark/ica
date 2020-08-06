@@ -61,10 +61,10 @@ module ICA
       response = upload_request.perform method, customer_account_mapping
       return unless response.status.success?
 
-      mark_uploaded Time.current
+      mark_uploaded customer_account_mapping
     end
 
-    def mark_uploaded(uploaded_at)
+    def mark_uploaded(customer_account_mapping, uploaded_at = Time.current)
       customer_account_mapping.uploaded_at = uploaded_at
       card_account_mappings.each do |card|
         card.uploaded_at = uploaded_at

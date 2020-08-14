@@ -9,6 +9,7 @@ module ICA
     recurrence(backfill: false) { daily.hour_of_day(12) }
 
     def perform
+      return unless Flipper.enabled?(:ica_sync)
       ICA::GarageSystem.with_live_state.ids.each do |system_id|
         AccountSync.perform_async(system_id)
       end

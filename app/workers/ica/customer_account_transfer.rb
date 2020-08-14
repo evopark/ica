@@ -14,6 +14,7 @@ module ICA
     delegate :log, to: GraylogHelper
 
     def perform
+      return unless Flipper.enabled?(:ica_sync)
       GarageSystem.all.each do |garage_system|
         log :info, "Start customer account transfer for #{garage_system.client_id}",
                    started_at: Time.current

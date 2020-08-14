@@ -21,6 +21,7 @@ module ICA
     # the individual requests will still trigger modifications in the remote system and thus modify the `uploaded_at`
     # attribute for the individual mapping objects.
     def perform(garage_system_id)
+      return unless Flipper.enabled?(:ica_sync)
       started_at = Time.now
       @garage_system = ICA::GarageSystem.find(garage_system_id)
       delete_old_accounts

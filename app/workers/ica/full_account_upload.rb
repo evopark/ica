@@ -9,6 +9,7 @@ module ICA
     include Sidekiq::Worker
 
     def perform(garage_system_id)
+      return unless Flipper.enabled?(:ica_sync)
       started_at = Time.now
       @garage_system = ICA::GarageSystem.find(garage_system_id)
       @garage_system.transaction do

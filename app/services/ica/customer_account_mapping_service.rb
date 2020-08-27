@@ -9,10 +9,11 @@ module ICA
       @customer_account_mapping = customer_account_mapping
     end
 
-    def publish(garage_system: nil, method: :post)
-      method = :put if customer_account_mapping.uploaded?
+    def publish(garage_system: nil)
       garage_system ||= customer_account_mapping.garage_system
-      response = upload_request(garage_system).perform method, customer_account_mapping
+      # NOTE: creating or updating a single resource means :post,
+      # updating the entire system means :put
+      response = upload_request(garage_system).perform :post, customer_account_mapping
       return unless response.status.success?
 
       mark_uploaded Time.current

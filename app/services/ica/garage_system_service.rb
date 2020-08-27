@@ -17,6 +17,13 @@ module ICA
       end
     end
 
+    def reset_remote
+      # NOTE: updating the entire system requires :put
+      response = GarageSystemRequest.new(garage_system)
+                                    .perform :put, garage_system.customer_account_mappings
+      response.status.success?
+    end
+
     def build_card_account_mapping(rfid_tag)
       account_mapping = find_or_build_account_mapping rfid_tag.customer
       account_mapping.account_key = SecureRandom.uuid

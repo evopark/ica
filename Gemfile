@@ -19,7 +19,7 @@ gem 'paper_trail'
 gem 'paranoia', '~> 2.3'
 gem 'rails', '~> 5.0.2'
 
-gem 'ep_ruby_utils', git: private_github_uri('ruby-utils')
+gem 'ep_ruby_utils', git: 'https://github.com/evopark/ruby-utils'
 
 gem 'appsignal'
 

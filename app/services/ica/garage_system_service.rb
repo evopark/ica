@@ -134,7 +134,7 @@ module ICA
                     JOIN ica_customer_account_mappings customer_mappings
                       ON customer_mappings.garage_system_id = :garage_system_id
                      AND card_mappings.customer_account_mapping_id = customer_mappings.id
-                     AND car_mappings.deleted_at IS NULL
+                     AND card_mappings.deleted_at IS NULL
                    WHERE card_mappings.rfid_tag_id = rfid_tags.id)
     SQL
   end

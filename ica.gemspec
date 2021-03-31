@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.name        = 'ica'
   s.version     = ICA::VERSION
   s.authors     = ['Marcus Ilgner']
-  s.email       = ['marcus.ilgner@evopark.de']
-  s.homepage    = 'https://www.evopark.de'
+  s.email       = ['christian.rolle@evopark.de']
+  s.homepage    = 'https://www.evopark.com'
   s.summary     = 'Implements the ICA API (client + server) & administration UI'
   s.description = ''
   s.license     = 'Proprietary'

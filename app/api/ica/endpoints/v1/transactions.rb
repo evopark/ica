@@ -149,6 +149,13 @@ module ICA::Endpoints::V1
           end
         end
 
+        def process_message(facade_result)
+          ica_message = ::ICA::MessageService.new(params, headers: headers)
+                                             .build_ica_message(facade_result)
+          ica_message.save!
+          body false
+        end
+
         def unknown_transaction
           status 404
           { Id: I18n.t('errors.messages.invalid') }
@@ -187,7 +194,11 @@ module ICA::Endpoints::V1
                         else
                           call_facade(:rfid_tag_enters_parking_garage!, facade_arguments)
                         end
-        interpret_facade_result(facade_result)
+        if Flipper.enabled?(:ica_message_dump)
+          process_message facade_result
+        else
+          interpret_facade_result(facade_result)
+        end
       end
 
       desc 'Update information for an existing parking transaction.'

@@ -25,12 +25,12 @@ module ICA
                                           headers: headers)
     end
 
-    def uuid
+    def uid
       message.dig 'DriveIn', 'Media', 'MediaId'
     end
 
     def rfid_tag
-      ::RfidTag.with_deleted.find_by_uuid uuid
+      ::RfidTag.with_deleted.find_by_uid uid
     end
 
     def parking_transaction

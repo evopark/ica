@@ -179,7 +179,9 @@ module ICA::Endpoints::V1
       end
       put ':transaction_id' do
         if Flipper.enabled?(:ica_message_dump)
-          form = ::ICA::MessageForm.new message: params, headers: headers
+          form = ::ICA::MessageForm.new message: params,
+                                        headers: headers,
+                                        external_key: params[:transaction_id]
           if form.valid?
             form.save!
             body false

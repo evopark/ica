@@ -209,16 +209,29 @@ module ICA::Endpoints::V1
       end
       patch ':transaction_id' do
         # Luckily, the API documentation specifies a very limited set of possible changes: adding an exit... Phew...
-        facade_arguments = default_facade_arguments
-        merge_entry_information(facade_arguments) if params[:DriveIn].present?
-        merge_exit_information(facade_arguments)
-        facade_result = if params[:Price].present?
-                          merge_payment_information(facade_arguments)
-                          finish_or_cancel_parking_transaction(facade_arguments)
-                        else
-                          call_facade(:rfid_tag_exits_parking_garage!, facade_arguments)
-                        end
-        interpret_facade_result(facade_result)
+        if Flipper.enabled?(:ica_message_dump)
+          form = ::ICA::MessageForm.new message: params,
+                                        headers: headers,
+                                        external_key: params[:transaction_id]
+          if form.valid?
+            form.save!
+            body false
+          else
+            status 409
+            { message: "Message couldn't be processed" }
+          end
+        else
+          facade_arguments = default_facade_arguments
+          merge_entry_information(facade_arguments) if params[:DriveIn].present?
+          merge_exit_information(facade_arguments)
+          facade_result = if params[:Price].present?
+                            merge_payment_information(facade_arguments)
+                            finish_or_cancel_parking_transaction(facade_arguments)
+                          else
+                            call_facade(:rfid_tag_exits_parking_garage!, facade_arguments)
+                          end
+          interpret_facade_result(facade_result)
+        end
       end
 
       desc 'Cancel a previously finished parking transaction'

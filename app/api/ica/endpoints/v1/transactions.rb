@@ -149,13 +149,6 @@ module ICA::Endpoints::V1
           end
         end
 
-        def process_message(facade_result)
-          ica_message = ::ICA::MessageService.new(params, headers: headers)
-                                             .build_ica_message(facade_result)
-          ica_message.save!
-          body false
-        end
-
         def unknown_transaction
           status 404
           { Id: I18n.t('errors.messages.invalid') }
@@ -185,18 +178,25 @@ module ICA::Endpoints::V1
         use :Transaction
       end
       put ':transaction_id' do
-        facade_arguments = default_facade_arguments
-        merge_entry_information(facade_arguments) if params[:DriveIn].present?
-        merge_payment_information(facade_arguments) if params[:Price].present?
-        facade_result = if params[:DriveOut].present?
-                          merge_exit_information(facade_arguments)
-                          finish_or_cancel_parking_transaction(facade_arguments)
-                        else
-                          call_facade(:rfid_tag_enters_parking_garage!, facade_arguments)
-                        end
         if Flipper.enabled?(:ica_message_dump)
-          process_message facade_result
+          form = ::ICA::MessageForm.new message: params, headers: headers
+          if form.valid?
+            form.save!
+            body false
+          else
+            status 409
+            { message: "Message couldn't be processed" }
+          end
         else
+          facade_arguments = default_facade_arguments
+          merge_entry_information(facade_arguments) if params[:DriveIn].present?
+          merge_payment_information(facade_arguments) if params[:Price].present?
+          facade_result = if params[:DriveOut].present?
+                            merge_exit_information(facade_arguments)
+                            finish_or_cancel_parking_transaction(facade_arguments)
+                          else
+                            call_facade(:rfid_tag_enters_parking_garage!, facade_arguments)
+                          end
           interpret_facade_result(facade_result)
         end
       end

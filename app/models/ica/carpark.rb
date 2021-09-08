@@ -15,5 +15,8 @@ module ICA
 
     # We don't use any internal identifiers for external communication
     validates :carpark_id, presence: true, uniqueness: { scope: :garage_system_id }
+    scope :for_client, -> (client_id) do
+      joins(:garage_system).merge ::ICA::GarageSystem.with_client_id(client_id)
+    end
   end
 end

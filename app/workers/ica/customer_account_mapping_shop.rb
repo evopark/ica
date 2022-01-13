@@ -13,6 +13,8 @@ module ICA
     delegate :log, to: GraylogHelper
 
     def perform
+      return unless Flipper.enabled?(:ica_customer_account_mapping_shop)
+
       GarageSystem.all.each { |garage_system| create_missing_accounts garage_system }
     end
 
